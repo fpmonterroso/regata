@@ -25,6 +25,8 @@ html,body{margin:0;height:100%;overflow:hidden;background:#9cc3d8;font-family:va
 #item{top:76px;left:50%;transform:translateX(-50%);padding:.35em .9em;display:flex;gap:.6em;align-items:center}
 #item small{display:block;opacity:.7;font-size:.75em;letter-spacing:.06em}#item b{font-size:1.05em}
 #islot{font-size:1.9em;min-width:1.2em;text-align:center;line-height:1}
+.sw{display:inline-block;width:1.6em;height:1.6em;border-radius:4px;border:2px solid #fff}
+#blind{position:absolute;inset:0;background:#06121c;display:grid;place-items:center;text-align:center;font:600 20px var(--body)}#blind b{display:block;font:800 120px var(--display)}
 #bpause{top:12px;right:12px;width:44px;height:44px;color:#fff;font-size:15px;cursor:pointer;padding:0}
 .wind{top:12px;right:66px;padding:.7em .9em;display:grid;grid-template-columns:auto auto;gap:.3em .9em;align-items:center}
 .wind svg{width:5.2em;height:5.2em;grid-row:span 3}
@@ -90,7 +92,9 @@ td{padding:7px 6px;border-bottom:1px solid var(--line)}tr.me td{font-weight:700;
       <span class="k">Ângulo</span><span class="v" id="twa">—</span>
       <span class="k">Rumo</span><span class="v" id="pt">—</span>
     </div>
-    <div class="hud spd"><b id="kn">0.0 <small id="knu" style="font-size:.4em">nós</small></b><div class="eff"><div id="effb"></div></div><small id="efl" style="opacity:.75">EFICIÊNCIA DA VELA</small><span id="tip"></span></div>
+    <div class="hud spd" id="spdp"><b id="kn">0.0 <small id="knu" style="font-size:.4em">nós</small></b><div class="eff"><div id="effb"></div></div><small id="efl" style="opacity:.75">EFICIÊNCIA DA VELA</small><span id="tip"></span></div>
+    <div class="hud spd" id="hidep" hidden><b id="hrole" style="font-size:1.4em"></b><div id="hsw" style="display:flex;gap:.6em;align-items:center"><span class="sw" id="swme"></span>tu<span class="sw" id="swhere"></span>este sítio</div><span id="htip" style="max-width:22em;white-space:normal"></span></div>
+    <div id="blind" hidden><div>Estás a contar…<b id="blindn"></b>Os outros estão a esconder-se</div></div>
     <canvas id="map" width="240" height="150"></canvas>
     <div class="hud" id="next"><svg id="narrow" viewBox="-10 -10 20 20"><path d="M0 -9 L7 6 L0 2 L-7 6Z" fill="#ffe14a"/></svg><span id="nxt">Boia 1</span></div>
     <div class="keys" id="keys">A/D ou ←/→ leme · W/S ou ↑/↓ caçar/folgar a vela · Espaço objeto · C câmara · Esc menu</div>
@@ -110,12 +114,12 @@ td{padding:7px 6px;border-bottom:1px solid var(--line)}tr.me td{font-weight:700;
       <button class="btn pri" id="bhost">Criar sala</button>
       <div class="row"><input id="jcode" maxlength="4" placeholder="Código" aria-label="Código da sala" style="text-transform:uppercase"><button class="btn" id="bjoin">Entrar</button></div>
       <div class="sep">ou</div>
-      <div class="row"><label>Tipo de corrida<select id="smode"><option value="sea">Só mar</option><option value="both">Mar + terra</option><option value="land">Só terra</option></select></label><label>Na água<select id="sveh"><option value="sail">Veleiro</option><option value="jet">Mota de água</option><option value="boat">Lancha</option></select></label><label>Em terra<select id="slveh"><option value="bike">Mota</option><option value="buggy">Buggy</option></select></label></div>
+      <div class="row"><label>Tipo de corrida<select id="smode"><option value="sea">Só mar</option><option value="both">Mar + terra</option><option value="land">Só terra</option><option value="hide">Escondidas</option></select></label><label>Na água<select id="sveh"><option value="sail">Veleiro</option><option value="jet">Mota de água</option><option value="boat">Lancha</option></select></label><label>Em terra<select id="slveh"><option value="bike">Mota</option><option value="buggy">Buggy</option></select></label></div>
       <button class="btn" id="bsolo">Treinar contra bots</button>
       <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="sitems" checked style="width:auto">Caixas com objetos (turbo, balões, algas)</label>
       <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="sfauna" checked style="width:auto">Animais marinhos (tubarões, baleia, mosassauro)</label>
       <div class="row"><select id="sboats" aria-label="Número de bots"><option value="1">1 bot</option><option value="2">2 bots</option><option value="3" selected>3 bots</option><option value="4">4 bots</option><option value="5">5 bots</option><option value="6">6 bots</option><option value="7">7 bots</option><option value="8">8 bots</option><option value="9">9 bots</option><option value="10">10 bots</option><option value="11">11 bots</option><option value="12">12 bots</option><option value="13">13 bots</option><option value="14">14 bots</option></select><select id="slaps" aria-label="Voltas"><option value="1">1 volta</option><option value="2" selected>2 voltas</option><option value="3">3 voltas</option></select></div>
-      <ul class="help"><li>Virar: A/D ou setas ←/→</li><li>Veleiro: W caça a vela, S folga. Segue a dica junto à velocidade</li><li>Motas, buggy e lancha: W acelera, S trava. Em terra, Shift derrapa</li><li>Espaço ou E usa o objeto das caixas ?</li><li>C muda a câmara · Esc ou P abre o menu</li></ul>
+      <ul class="help"><li>Virar: A/D ou setas ←/→</li><li>Veleiro: W caça a vela, S folga. Segue a dica junto à velocidade</li><li>Motas, buggy e lancha: W acelera, S trava. Em terra, Shift derrapa</li><li>Espaço ou E usa o objeto das caixas ?</li><li>Escondidas: anda a pé, Espaço pinta-te com a cor do sítio; o caçador tem de tocar nos outros</li><li>C muda a câmara · Esc ou P abre o menu</li></ul>
       <p id="merr" role="status"></p>
     </div>
     <div class="card" id="m-room" hidden>
@@ -126,7 +130,7 @@ td{padding:7px 6px;border-bottom:1px solid var(--line)}tr.me td{font-weight:700;
       <p id="rcount"></p>
       <ul id="rlist"></ul>
       <div id="rhost" class="card" style="padding:0;box-shadow:none">
-        <div class="row"><label>Tipo de corrida<select id="rmode"><option value="sea">Só mar</option><option value="both">Mar + terra</option><option value="land">Só terra</option></select></label><label>Na água<select id="rveh"><option value="sail">Veleiro</option><option value="jet">Mota de água</option><option value="boat">Lancha</option></select></label><label>Em terra<select id="rlveh"><option value="bike">Mota</option><option value="buggy">Buggy</option></select></label></div>
+        <div class="row"><label>Tipo de corrida<select id="rmode"><option value="sea">Só mar</option><option value="both">Mar + terra</option><option value="land">Só terra</option><option value="hide">Escondidas</option></select></label><label>Na água<select id="rveh"><option value="sail">Veleiro</option><option value="jet">Mota de água</option><option value="boat">Lancha</option></select></label><label>Em terra<select id="rlveh"><option value="bike">Mota</option><option value="buggy">Buggy</option></select></label></div>
         <div class="row"><label>Voltas<select id="laps"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select></label>
         <label>Juntar bots (opcional)<select id="nboats"><option value="0" selected>Sem bots</option><option value="1">1 bot</option><option value="2">2 bots</option><option value="3">3 bots</option><option value="4">4 bots</option><option value="5">5 bots</option><option value="6">6 bots</option><option value="7">7 bots</option><option value="8">8 bots</option><option value="9">9 bots</option><option value="10">10 bots</option><option value="11">11 bots</option><option value="12">12 bots</option><option value="13">13 bots</option><option value="14">14 bots</option></select></label></div>
         <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="ritems" checked style="width:auto">Caixas com objetos (turbo, balões, algas)</label>
