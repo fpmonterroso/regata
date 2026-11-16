@@ -4,7 +4,7 @@ Corridas no browser para até 15 jogadores, na Baía do Funchal: de veleiro, mot
 
 ## Jogar
 
-Tipos de corrida: **Só mar** (voltas às boias), **Mar + mota** (as voltas no mar acabam na praia, onde se troca para a mota e se sobe o trilho até ao moinho) e **Só mota** (cada volta é subir ao moinho e descer à praia). Na água escolhe-se veleiro, mota de água ou lancha; todos os jogadores usam o mesmo.
+Tipos de corrida: **Só mar** (voltas às boias), **Mar + terra** (as voltas no mar acabam na praia, onde se troca para a mota e se sobe o trilho até ao moinho) e **Só terra** (cada volta é subir ao moinho e descer à praia). Na água escolhe-se veleiro, mota de água ou lancha; todos os jogadores usam o mesmo. Em terra escolhe-se mota ou buggy; o trilho tem cerca de 2,5 km, rampas para saltar e caixas de objetos, e com Shift derrapa-se.
 
 - **Treinar contra bots**: começa logo, sozinho contra 1 a 14 bots.
 - **Criar sala**: dá um código de 4 letras e um link (`?sala=CÓDIGO`) para enviar aos amigos. Entram até 15 pessoas; o anfitrião escolhe as voltas e, se quiser, junta bots. Cada volta tem um percurso diferente (boias A a G).

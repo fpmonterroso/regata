@@ -47,6 +47,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#9cc3d8;font-family:va
 body.touch .tc{display:flex;position:absolute;bottom:90px;gap:10px}
 body.touch .keys{display:none}
 .tc button{width:64px;height:64px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(6,18,28,.55);color:#fff;font-size:24px;touch-action:none;user-select:none}
+.tc .lx{display:none}body.land .tc .lx{display:block}
 .tc.l{left:12px}.tc.r{right:12px}
 body.touch #map{bottom:auto;top:110px;width:140px}
 body.touch .pos{font-size:9px}
@@ -93,7 +94,7 @@ td{padding:7px 6px;border-bottom:1px solid var(--line)}tr.me td{font-weight:700;
     <canvas id="map" width="240" height="150"></canvas>
     <div class="hud" id="next"><svg id="narrow" viewBox="-10 -10 20 20"><path d="M0 -9 L7 6 L0 2 L-7 6Z" fill="#ffe14a"/></svg><span id="nxt">Boia 1</span></div>
     <div class="keys" id="keys">A/D ou ←/→ leme · W/S ou ↑/↓ caçar/folgar a vela · Espaço objeto · C câmara · Esc menu</div>
-    <div class="tc l"><button data-t="l" aria-label="Virar à esquerda">◀</button><button data-t="r" aria-label="Virar à direita">▶</button></div>
+    <div class="tc l"><button data-t="l" aria-label="Virar à esquerda">◀</button><button data-t="r" aria-label="Virar à direita">▶</button><button data-t="x" class="lx" aria-label="Derrapar">⤿</button></div>
     <div class="tc r"><button id="bitem" aria-label="Usar objeto">★</button><button data-t="u" aria-label="Caçar a vela">▲</button><button data-t="d" aria-label="Folgar a vela">▼</button></div>
     <div class="hud" id="item"><span id="islot"></span><span><small>OBJETO · ESPAÇO</small><b id="iname">—</b></span></div>
     <button class="hud" id="bpause" aria-label="Menu e pausa">❚❚</button>
@@ -104,16 +105,16 @@ td{padding:7px 6px;border-bottom:1px solid var(--line)}tr.me td{font-weight:700;
   <div class="panel" id="menu">
     <div class="card" id="m-main">
       <h1>Regata do Funchal</h1>
-      <p>Corridas na Baía do Funchal para 2 a 15 jogadores: de veleiro, mota de água ou lancha, e de mota de motocross pela encosta até ao moinho. Segue a seta e a boia assinalada. De veleiro, contra o vento não andas: tens de bolinar em zigue-zague.</p>
+      <p>Corridas na Baía do Funchal para 2 a 15 jogadores: de veleiro, mota de água ou lancha, e de mota de motocross ou buggy pela encosta, com rampas, até ao moinho. Segue a seta e a boia assinalada. De veleiro, contra o vento não andas: tens de bolinar em zigue-zague.</p>
       <label>O teu nome<input id="name" maxlength="14" autocomplete="nickname" placeholder="Jogador"></label>
       <button class="btn pri" id="bhost">Criar sala</button>
       <div class="row"><input id="jcode" maxlength="4" placeholder="Código" aria-label="Código da sala" style="text-transform:uppercase"><button class="btn" id="bjoin">Entrar</button></div>
       <div class="sep">ou</div>
-      <div class="row"><label>Tipo de corrida<select id="smode"><option value="sea">Só mar</option><option value="both">Mar + mota</option><option value="land">Só mota</option></select></label><label>Na água<select id="sveh"><option value="sail">Veleiro</option><option value="jet">Mota de água</option><option value="boat">Lancha</option></select></label></div>
+      <div class="row"><label>Tipo de corrida<select id="smode"><option value="sea">Só mar</option><option value="both">Mar + terra</option><option value="land">Só terra</option></select></label><label>Na água<select id="sveh"><option value="sail">Veleiro</option><option value="jet">Mota de água</option><option value="boat">Lancha</option></select></label><label>Em terra<select id="slveh"><option value="bike">Mota</option><option value="buggy">Buggy</option></select></label></div>
       <button class="btn" id="bsolo">Treinar contra bots</button>
       <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="sitems" checked style="width:auto">Caixas com objetos (turbo, balões, algas)</label>
       <div class="row"><select id="sboats" aria-label="Número de bots"><option value="1">1 bot</option><option value="2">2 bots</option><option value="3" selected>3 bots</option><option value="4">4 bots</option><option value="5">5 bots</option><option value="6">6 bots</option><option value="7">7 bots</option><option value="8">8 bots</option><option value="9">9 bots</option><option value="10">10 bots</option><option value="11">11 bots</option><option value="12">12 bots</option><option value="13">13 bots</option><option value="14">14 bots</option></select><select id="slaps" aria-label="Voltas"><option value="1">1 volta</option><option value="2" selected>2 voltas</option><option value="3">3 voltas</option></select></div>
-      <ul class="help"><li>Virar: A/D ou setas ←/→</li><li>Veleiro: W caça a vela, S folga. Segue a dica junto à velocidade</li><li>Motas e lancha: W acelera, S trava</li><li>Espaço ou E usa o objeto das caixas ?</li><li>C muda a câmara · Esc ou P abre o menu</li></ul>
+      <ul class="help"><li>Virar: A/D ou setas ←/→</li><li>Veleiro: W caça a vela, S folga. Segue a dica junto à velocidade</li><li>Motas, buggy e lancha: W acelera, S trava. Em terra, Shift derrapa</li><li>Espaço ou E usa o objeto das caixas ?</li><li>C muda a câmara · Esc ou P abre o menu</li></ul>
       <p id="merr" role="status"></p>
     </div>
     <div class="card" id="m-room" hidden>
@@ -124,7 +125,7 @@ td{padding:7px 6px;border-bottom:1px solid var(--line)}tr.me td{font-weight:700;
       <p id="rcount"></p>
       <ul id="rlist"></ul>
       <div id="rhost" class="card" style="padding:0;box-shadow:none">
-        <div class="row"><label>Tipo de corrida<select id="rmode"><option value="sea">Só mar</option><option value="both">Mar + mota</option><option value="land">Só mota</option></select></label><label>Na água<select id="rveh"><option value="sail">Veleiro</option><option value="jet">Mota de água</option><option value="boat">Lancha</option></select></label></div>
+        <div class="row"><label>Tipo de corrida<select id="rmode"><option value="sea">Só mar</option><option value="both">Mar + terra</option><option value="land">Só terra</option></select></label><label>Na água<select id="rveh"><option value="sail">Veleiro</option><option value="jet">Mota de água</option><option value="boat">Lancha</option></select></label><label>Em terra<select id="rlveh"><option value="bike">Mota</option><option value="buggy">Buggy</option></select></label></div>
         <div class="row"><label>Voltas<select id="laps"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select></label>
         <label>Juntar bots (opcional)<select id="nboats"><option value="0" selected>Sem bots</option><option value="1">1 bot</option><option value="2">2 bots</option><option value="3">3 bots</option><option value="4">4 bots</option><option value="5">5 bots</option><option value="6">6 bots</option><option value="7">7 bots</option><option value="8">8 bots</option><option value="9">9 bots</option><option value="10">10 bots</option><option value="11">11 bots</option><option value="12">12 bots</option><option value="13">13 bots</option><option value="14">14 bots</option></select></label></div>
         <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="ritems" checked style="width:auto">Caixas com objetos (turbo, balões, algas)</label>
