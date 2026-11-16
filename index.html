@@ -22,7 +22,8 @@ html,body{margin:0;height:100%;overflow:hidden;background:#9cc3d8;font-family:va
 .lap{top:12px;left:50%;transform:translateX(-50%);text-align:center;padding:.5em 1.3em}
 .lap b{display:block;font-size:1.25em}
 .lap small{opacity:.75;letter-spacing:.08em}
-.wind{top:12px;right:12px;padding:.7em .9em;display:grid;grid-template-columns:auto auto;gap:.3em .9em;align-items:center}
+#bpause{top:12px;right:12px;width:44px;height:44px;color:#fff;font-size:15px;cursor:pointer;padding:0}
+.wind{top:12px;right:66px;padding:.7em .9em;display:grid;grid-template-columns:auto auto;gap:.3em .9em;align-items:center}
 .wind svg{width:5.2em;height:5.2em;grid-row:span 3}
 .wind .k{opacity:.7;font-size:.85em}.wind .v{font-weight:700}
 .spd{bottom:12px;right:12px;padding:.7em 1em;display:grid;gap:.4em;min-width:15em}
@@ -60,7 +61,7 @@ body.touch .pos{font-size:9px}
 .sep{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px}.sep:before,.sep:after{content:"";flex:1;height:1px;background:var(--line)}
 #merr{color:var(--accent);font-size:14px;min-height:1em}
 .code{font:700 38px var(--mono);letter-spacing:.15em;color:var(--sea)}
-#rlist{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+#rlist{list-style:none;margin:0;padding:0;display:grid;gap:6px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));max-height:40vh;overflow:auto}
 #rlist li{padding:8px 10px;border:1px solid var(--line);border-radius:8px}
 table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:14px}
 td{padding:7px 6px;border-bottom:1px solid var(--line)}tr.me td{font-weight:700;background:#fff7d6}
@@ -88,9 +89,10 @@ td{padding:7px 6px;border-bottom:1px solid var(--line)}tr.me td{font-weight:700;
     <div class="hud spd"><b id="kn">0.0 <small style="font-size:.4em">nós</small></b><div class="eff"><div id="effb"></div></div><small style="opacity:.75">EFICIÊNCIA DA VELA</small><span id="tip"></span></div>
     <canvas id="map" width="240" height="150"></canvas>
     <div class="hud" id="next"><svg id="narrow" viewBox="-10 -10 20 20"><path d="M0 -9 L7 6 L0 2 L-7 6Z" fill="#ffe14a"/></svg><span id="nxt">Boia 1</span></div>
-    <div class="keys">A/D ou ←/→ leme · W/S ou ↑/↓ caçar/folgar a vela · C câmara</div>
+    <div class="keys">A/D ou ←/→ leme · W/S ou ↑/↓ caçar/folgar a vela · C câmara · Esc menu</div>
     <div class="tc l"><button data-t="l" aria-label="Virar à esquerda">◀</button><button data-t="r" aria-label="Virar à direita">▶</button></div>
     <div class="tc r"><button data-t="u" aria-label="Caçar a vela">▲</button><button data-t="d" aria-label="Folgar a vela">▼</button></div>
+    <button class="hud" id="bpause" aria-label="Menu e pausa">❚❚</button>
     <div id="cd"></div>
     <div id="toast"></div>
   </div>
@@ -98,13 +100,14 @@ td{padding:7px 6px;border-bottom:1px solid var(--line)}tr.me td{font-weight:700;
   <div class="panel" id="menu">
     <div class="card" id="m-main">
       <h1>Regata do Funchal</h1>
-      <p>Regata à vela até 4 jogadores. Contorna as boias 1, 2 e 3 e passa a linha de chegada. O vento sopra de nordeste: contra o vento não andas, tens de bolinar em zigue-zague.</p>
+      <p>Regata à vela com 2 a 15 barcos: entra quem tiver o código da sala, e os bots são opcionais. Cada volta tem um percurso diferente: segue a seta e a boia assinalada, e passa a linha de chegada. O vento sopra de nordeste: contra o vento não andas, tens de bolinar em zigue-zague.</p>
       <label>O teu nome<input id="name" maxlength="14" autocomplete="nickname" placeholder="Jogador"></label>
       <button class="btn pri" id="bhost">Criar sala</button>
       <div class="row"><input id="jcode" maxlength="4" placeholder="Código" aria-label="Código da sala" style="text-transform:uppercase"><button class="btn" id="bjoin">Entrar</button></div>
       <div class="sep">ou</div>
-      <div class="row"><button class="btn" id="bsolo">Treinar contra bots</button><select id="slaps" aria-label="Voltas"><option value="1">1 volta</option><option value="2" selected>2 voltas</option><option value="3">3 voltas</option></select></div>
-      <ul class="help"><li>Leme: A/D ou setas ←/→</li><li>Vela: W caça, S folga. Segue a dica junto à velocidade</li><li>C muda a câmara</li></ul>
+      <button class="btn" id="bsolo">Treinar contra bots</button>
+      <div class="row"><select id="sboats" aria-label="Número de bots"><option value="1">1 bot</option><option value="2">2 bots</option><option value="3" selected>3 bots</option><option value="4">4 bots</option><option value="5">5 bots</option><option value="6">6 bots</option><option value="7">7 bots</option><option value="8">8 bots</option><option value="9">9 bots</option><option value="10">10 bots</option><option value="11">11 bots</option><option value="12">12 bots</option><option value="13">13 bots</option><option value="14">14 bots</option></select><select id="slaps" aria-label="Voltas"><option value="1">1 volta</option><option value="2" selected>2 voltas</option><option value="3">3 voltas</option></select></div>
+      <ul class="help"><li>Leme: A/D ou setas ←/→</li><li>Vela: W caça, S folga. Segue a dica junto à velocidade</li><li>C muda a câmara · Esc ou P abre o menu</li></ul>
       <p id="merr" role="status"></p>
     </div>
     <div class="card" id="m-room" hidden>
@@ -112,14 +115,26 @@ td{padding:7px 6px;border-bottom:1px solid var(--line)}tr.me td{font-weight:700;
       <div class="code" id="rcode">----</div>
       <div class="row"><input id="rlink" readonly aria-label="Link da sala"><button class="btn" id="bcopy" style="flex:0 0 auto">Copiar</button></div>
       <p>Envia o código ou o link aos amigos.</p>
+      <p id="rcount"></p>
       <ul id="rlist"></ul>
       <div id="rhost" class="card" style="padding:0;box-shadow:none">
         <div class="row"><label>Voltas<select id="laps"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select></label>
-        <label style="align-content:end;display:flex;gap:6px;align-items:center"><input type="checkbox" id="bots" checked style="width:auto">Preencher com bots</label></div>
+        <label>Juntar bots (opcional)<select id="nboats"><option value="0" selected>Sem bots</option><option value="1">1 bot</option><option value="2">2 bots</option><option value="3">3 bots</option><option value="4">4 bots</option><option value="5">5 bots</option><option value="6">6 bots</option><option value="7">7 bots</option><option value="8">8 bots</option><option value="9">9 bots</option><option value="10">10 bots</option><option value="11">11 bots</option><option value="12">12 bots</option><option value="13">13 bots</option><option value="14">14 bots</option></select></label></div>
         <button class="btn pri" id="bstart">Começar corrida</button>
       </div>
       <p id="rwait">À espera que o anfitrião comece a corrida…</p>
       <button class="btn" id="bleave">Sair da sala</button>
+    </div>
+  </div>
+
+  <div class="panel" id="pause" hidden>
+    <div class="card">
+      <h2>Menu</h2>
+      <p id="pnote"></p>
+      <button class="btn pri" id="presume">Continuar</button>
+      <button class="btn" id="prestart">Recomeçar</button>
+      <button class="btn" id="plobby">Voltar à sala</button>
+      <button class="btn" id="phome">Menu principal</button>
     </div>
   </div>
 

@@ -1,14 +1,14 @@
 # Regata do Funchal
 
-Regata à vela no browser, até 4 jogadores, na Baía do Funchal. Three.js r128 (Water e Sky), multijogador P2P com PeerJS. Tudo estático, sem servidor próprio.
+Regata à vela no browser, até 15 barcos, na Baía do Funchal. Three.js r128 (Water e Sky), multijogador P2P com PeerJS. Tudo estático, sem servidor próprio.
 
 ## Jogar
 
-- **Treinar contra bots**: começa logo, sozinho contra 3 bots.
-- **Criar sala**: dá um código de 4 letras e um link (`?sala=CÓDIGO`) para enviar aos amigos. O anfitrião escolhe as voltas e se os lugares vazios ficam com bots.
+- **Treinar contra bots**: começa logo, sozinho contra 1 a 14 bots.
+- **Criar sala**: dá um código de 4 letras e um link (`?sala=CÓDIGO`) para enviar aos amigos. Entram até 15 pessoas; o anfitrião escolhe as voltas e, se quiser, junta bots. Cada volta tem um percurso diferente (boias A a G).
 - **Entrar**: escreve o código e carrega em Entrar.
 
-Controlos: A/D ou ←/→ para o leme, W/S ou ↑/↓ para caçar/folgar a vela, C para mudar a câmara. Em telemóvel aparecem botões no ecrã.
+Controlos: A/D ou ←/→ para o leme, W/S ou ↑/↓ para caçar/folgar a vela, C para mudar a câmara, Esc ou P (ou o botão ❚❚) para o menu: pausa, recomeçar, voltar à sala ou ao início. Em telemóvel aparecem botões no ecrã.
 
 A velocidade depende do ângulo ao vento (curva polar) e da afinação da vela. Contra o vento (menos de ~35°) o barco quase para, por isso a primeira perna, até à boia 1, faz-se em bolina, em zigue-zague.
 
