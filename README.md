@@ -8,6 +8,8 @@ Regata à vela no browser, até 15 barcos, na Baía do Funchal. Three.js r128 (W
 - **Criar sala**: dá um código de 4 letras e um link (`?sala=CÓDIGO`) para enviar aos amigos. Entram até 15 pessoas; o anfitrião escolhe as voltas e, se quiser, junta bots. Cada volta tem um percurso diferente (boias A a G).
 - **Entrar**: escreve o código e carrega em Entrar.
 
+Objetos: há caixas "?" na água em cada perna. Dão turbo, vento de feição, um balão de água para atirar ao barco da frente ou algas para largar atrás. Usa-se com Espaço ou E (★ no telemóvel) e pode desligar-se no menu.
+
 Controlos: A/D ou ←/→ para o leme, W/S ou ↑/↓ para caçar/folgar a vela, C para mudar a câmara, Esc ou P (ou o botão ❚❚) para o menu: pausa, recomeçar, voltar à sala ou ao início. Em telemóvel aparecem botões no ecrã.
 
 A velocidade depende do ângulo ao vento (curva polar) e da afinação da vela. Contra o vento (menos de ~35°) o barco quase para, por isso a primeira perna, até à boia 1, faz-se em bolina, em zigue-zague.

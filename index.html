@@ -22,6 +22,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:#9cc3d8;font-family:va
 .lap{top:12px;left:50%;transform:translateX(-50%);text-align:center;padding:.5em 1.3em}
 .lap b{display:block;font-size:1.25em}
 .lap small{opacity:.75;letter-spacing:.08em}
+#item{top:76px;left:50%;transform:translateX(-50%);padding:.35em .9em;display:flex;gap:.6em;align-items:center}
+#item small{display:block;opacity:.7;font-size:.75em;letter-spacing:.06em}#item b{font-size:1.05em}
+#islot{font-size:1.9em;min-width:1.2em;text-align:center;line-height:1}
 #bpause{top:12px;right:12px;width:44px;height:44px;color:#fff;font-size:15px;cursor:pointer;padding:0}
 .wind{top:12px;right:66px;padding:.7em .9em;display:grid;grid-template-columns:auto auto;gap:.3em .9em;align-items:center}
 .wind svg{width:5.2em;height:5.2em;grid-row:span 3}
@@ -89,9 +92,10 @@ td{padding:7px 6px;border-bottom:1px solid var(--line)}tr.me td{font-weight:700;
     <div class="hud spd"><b id="kn">0.0 <small style="font-size:.4em">nós</small></b><div class="eff"><div id="effb"></div></div><small style="opacity:.75">EFICIÊNCIA DA VELA</small><span id="tip"></span></div>
     <canvas id="map" width="240" height="150"></canvas>
     <div class="hud" id="next"><svg id="narrow" viewBox="-10 -10 20 20"><path d="M0 -9 L7 6 L0 2 L-7 6Z" fill="#ffe14a"/></svg><span id="nxt">Boia 1</span></div>
-    <div class="keys">A/D ou ←/→ leme · W/S ou ↑/↓ caçar/folgar a vela · C câmara · Esc menu</div>
+    <div class="keys">A/D ou ←/→ leme · W/S ou ↑/↓ caçar/folgar a vela · Espaço objeto · C câmara · Esc menu</div>
     <div class="tc l"><button data-t="l" aria-label="Virar à esquerda">◀</button><button data-t="r" aria-label="Virar à direita">▶</button></div>
-    <div class="tc r"><button data-t="u" aria-label="Caçar a vela">▲</button><button data-t="d" aria-label="Folgar a vela">▼</button></div>
+    <div class="tc r"><button id="bitem" aria-label="Usar objeto">★</button><button data-t="u" aria-label="Caçar a vela">▲</button><button data-t="d" aria-label="Folgar a vela">▼</button></div>
+    <div class="hud" id="item"><span id="islot"></span><span><small>OBJETO · ESPAÇO</small><b id="iname">—</b></span></div>
     <button class="hud" id="bpause" aria-label="Menu e pausa">❚❚</button>
     <div id="cd"></div>
     <div id="toast"></div>
@@ -106,8 +110,9 @@ td{padding:7px 6px;border-bottom:1px solid var(--line)}tr.me td{font-weight:700;
       <div class="row"><input id="jcode" maxlength="4" placeholder="Código" aria-label="Código da sala" style="text-transform:uppercase"><button class="btn" id="bjoin">Entrar</button></div>
       <div class="sep">ou</div>
       <button class="btn" id="bsolo">Treinar contra bots</button>
+      <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="sitems" checked style="width:auto">Caixas com objetos (turbo, balões, algas)</label>
       <div class="row"><select id="sboats" aria-label="Número de bots"><option value="1">1 bot</option><option value="2">2 bots</option><option value="3" selected>3 bots</option><option value="4">4 bots</option><option value="5">5 bots</option><option value="6">6 bots</option><option value="7">7 bots</option><option value="8">8 bots</option><option value="9">9 bots</option><option value="10">10 bots</option><option value="11">11 bots</option><option value="12">12 bots</option><option value="13">13 bots</option><option value="14">14 bots</option></select><select id="slaps" aria-label="Voltas"><option value="1">1 volta</option><option value="2" selected>2 voltas</option><option value="3">3 voltas</option></select></div>
-      <ul class="help"><li>Leme: A/D ou setas ←/→</li><li>Vela: W caça, S folga. Segue a dica junto à velocidade</li><li>C muda a câmara · Esc ou P abre o menu</li></ul>
+      <ul class="help"><li>Leme: A/D ou setas ←/→</li><li>Vela: W caça, S folga. Segue a dica junto à velocidade</li><li>Espaço ou E usa o objeto das caixas ?</li><li>C muda a câmara · Esc ou P abre o menu</li></ul>
       <p id="merr" role="status"></p>
     </div>
     <div class="card" id="m-room" hidden>
@@ -120,6 +125,7 @@ td{padding:7px 6px;border-bottom:1px solid var(--line)}tr.me td{font-weight:700;
       <div id="rhost" class="card" style="padding:0;box-shadow:none">
         <div class="row"><label>Voltas<select id="laps"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select></label>
         <label>Juntar bots (opcional)<select id="nboats"><option value="0" selected>Sem bots</option><option value="1">1 bot</option><option value="2">2 bots</option><option value="3">3 bots</option><option value="4">4 bots</option><option value="5">5 bots</option><option value="6">6 bots</option><option value="7">7 bots</option><option value="8">8 bots</option><option value="9">9 bots</option><option value="10">10 bots</option><option value="11">11 bots</option><option value="12">12 bots</option><option value="13">13 bots</option><option value="14">14 bots</option></select></label></div>
+        <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="ritems" checked style="width:auto">Caixas com objetos (turbo, balões, algas)</label>
         <button class="btn pri" id="bstart">Começar corrida</button>
       </div>
       <p id="rwait">À espera que o anfitrião comece a corrida…</p>
