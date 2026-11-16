@@ -33,7 +33,8 @@ html,body{margin:0;height:100%;overflow:hidden;background:#9cc3d8;font-family:va
 #ptools{display:grid;gap:8px;align-content:start;width:176px}
 #ppal{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}#ppal button{aspect-ratio:1;border:2px solid rgba(255,255,255,.35);border-radius:4px;padding:0;cursor:pointer}#ppal button[aria-pressed="true"]{border-color:#fff;outline:2px solid #ffd23f}
 .prow{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
-#ptools button[data-ps],#pfill,#pclose{font:600 12px var(--body);padding:5px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;cursor:pointer}
+#hbtn{display:flex;gap:6px;margin-top:6px;pointer-events:auto}#hbtn[hidden]{display:none}
+#ptools button[data-ps],#pfill,#pcopy,#hbtn button,#pclose{font:600 12px var(--body);padding:5px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;cursor:pointer}
 #ptools button[data-ps][aria-pressed="true"]{background:#fff;color:#14202a}#phere{width:1.9em;height:1.9em;border-radius:4px;border:2px solid #fff;cursor:pointer}
 #bpause{top:12px;right:12px;width:44px;height:44px;color:#fff;font-size:15px;cursor:pointer;padding:0}
 .wind{top:12px;right:66px;padding:.7em .9em;display:grid;grid-template-columns:auto auto;gap:.3em .9em;align-items:center}
@@ -101,12 +102,12 @@ td{padding:7px 6px;border-bottom:1px solid var(--line)}tr.me td{font-weight:700;
       <span class="k">Rumo</span><span class="v" id="pt">—</span>
     </div>
     <div class="hud spd" id="spdp"><b id="kn">0.0 <small id="knu" style="font-size:.4em">nós</small></b><div class="eff"><div id="effb"></div></div><small id="efl" style="opacity:.75">EFICIÊNCIA DA VELA</small><span id="tip"></span></div>
-    <div class="hud spd" id="hidep" hidden><b id="hrole" style="font-size:1.4em"></b><div id="hsw" style="display:flex;gap:.6em;align-items:center"><span class="sw" id="swme"></span>tu<span class="sw" id="swhere"></span>este sítio</div><span id="htip" style="max-width:22em;white-space:normal"></span></div>
+    <div class="hud spd" id="hidep" hidden><b id="hrole" style="font-size:1.4em"></b><div id="hsw" style="display:flex;gap:.6em;align-items:center"><span class="sw" id="swme"></span>tu<span class="sw" id="swhere"></span>este sítio</div><span id="htip" style="max-width:22em;white-space:normal"></span><div id="hbtn"><button type="button" id="hcopy">Copiar fundo</button><button type="button" id="hform">Objeto</button><button type="button" id="hpose">Pose</button></div></div>
     <div class="hud" id="paint" hidden>
-      <div id="pwrap"><svg viewBox="0 0 48 80" aria-hidden="true"><g fill="none" stroke="#000" stroke-opacity=".55" stroke-width=".6"><ellipse cx="24" cy="10" rx="9.4" ry="8.6"/><rect x="12" y="18.6" width="24" height="29"/><rect x="36.4" y="20" width="6.6" height="27"/><rect x="5" y="20" width="6.6" height="27"/><rect x="25.7" y="47.6" width="9.6" height="32.4"/><rect x="12.7" y="47.6" width="9.6" height="32.4"/></g></svg></div>
+      <div id="pwrap"><svg viewBox="0 0 48 80" aria-hidden="true"><g fill="none" stroke="#000" stroke-opacity=".55" stroke-width=".6"><rect x="10.9" y=".6" width="26.2" height="47"/><rect x="25.7" y="47.6" width="9.6" height="32.4"/><rect x="12.7" y="47.6" width="9.6" height="32.4"/></g></svg></div>
       <div id="ptools"><b>Pinta o teu boneco</b><div id="ppal"></div>
         <div class="prow">Pincel <button type="button" data-ps="1.2">fino</button><button type="button" data-ps="3" aria-pressed="true">médio</button><button type="button" data-ps="6">grosso</button></div>
-        <div class="prow"><span class="sw" id="pcur"></span><button type="button" id="pfill">Encher tudo</button><button type="button" id="phere"> </button><span>cor daqui</span></div>
+        <div class="prow"><span class="sw" id="pcur"></span><button type="button" id="pcopy">Copiar o fundo</button><button type="button" id="pfill">Encher tudo</button><button type="button" id="phere"> </button><span>cor daqui</span></div>
         <button type="button" id="pclose">Fechar (Espaço)</button></div>
     </div>
     <div id="blind" hidden><div>Estás a contar…<b id="blindn"></b>Os outros estão a esconder-se</div></div>
