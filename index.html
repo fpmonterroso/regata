@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Regata do Funchal</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" media="print" onload="this.media='all'">
+<style>
+:root{--fg:#14202a;--muted:#536370;--line:#d4dde3;--accent:#c4502a;--sea:#11708f;--surface:#fff;
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;--body:"Inter",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html,body{margin:0;height:100%;overflow:hidden;background:#9cc3d8;font-family:var(--body);color:#fff;touch-action:none}
+#scr{position:fixed;inset:0}
+#cv{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hud{position:absolute;font-family:var(--mono);background:rgba(6,18,28,.6);border:1px solid rgba(255,255,255,.12);border-radius:10px;backdrop-filter:blur(6px);font-size:clamp(10px,1.1vw,13px)}
+.pos{top:12px;left:12px;padding:.7em .9em;display:grid;gap:.35em;min-width:14em}
+.pos .r{display:grid;grid-template-columns:2em .9em 1fr auto;gap:.6em;align-items:center}
+.pos .me{background:rgba(255,255,255,.16);border-radius:6px;margin:0 -.4em;padding:.1em .4em}
+.dot{display:inline-block;width:.8em;height:.8em;border-radius:50%;margin-right:.4em;vertical-align:-.05em}
+.pos .dot{margin:0}
+.gap{opacity:.7;font-variant-numeric:tabular-nums}
+.lap{top:12px;left:50%;transform:translateX(-50%);text-align:center;padding:.5em 1.3em}
+.lap b{display:block;font-size:1.25em}
+.lap small{opacity:.75;letter-spacing:.08em}
+.wind{top:12px;right:12px;padding:.7em .9em;display:grid;grid-template-columns:auto auto;gap:.3em .9em;align-items:center}
+.wind svg{width:5.2em;height:5.2em;grid-row:span 3}
+.wind .k{opacity:.7;font-size:.85em}.wind .v{font-weight:700}
+.spd{bottom:12px;right:12px;padding:.7em 1em;display:grid;gap:.4em;min-width:15em}
+.spd b{font-size:2.3em;line-height:1;font-variant-numeric:tabular-nums}
+.eff{height:.6em;border-radius:.3em;background:rgba(255,255,255,.2);overflow:hidden}
+.eff div{height:100%;width:0;background:linear-gradient(90deg,#ff6b4a,#ffd23f,#5ee08f);transition:width .3s}
+#tip{font-size:.9em;color:#ffd23f}#tip.ok{color:#5ee08f}
+#map{position:absolute;bottom:12px;left:12px;width:min(220px,30vw);border-radius:10px;border:1px solid rgba(255,255,255,.2)}
+#next{bottom:12px;left:50%;transform:translateX(-50%);padding:.5em 1em;display:flex;gap:.7em;align-items:center;font-size:clamp(12px,1.3vw,15px)}
+#narrow{width:1.4em;height:1.4em;display:block}
+#cd{position:absolute;top:30%;left:50%;transform:translate(-50%,-50%);font:800 clamp(60px,12vw,150px) var(--display);text-shadow:0 6px 30px rgba(0,0,0,.5);pointer-events:none}
+#toast{position:absolute;top:22%;left:50%;transform:translate(-50%,0);font:700 clamp(16px,2.2vw,26px) var(--display);background:rgba(6,18,28,.7);padding:.3em .9em;border-radius:10px;opacity:0;transition:opacity .3s;pointer-events:none}
+#toast.on{opacity:1}
+.keys{position:absolute;bottom:62px;left:50%;transform:translateX(-50%);font:500 11px var(--mono);opacity:.75;white-space:nowrap;text-shadow:0 1px 3px #000}
+.nm{position:absolute;font:700 12px var(--mono);background:rgba(6,18,28,.78);padding:2px 7px;border-radius:4px;transform:translate(-50%,-100%);white-space:nowrap;pointer-events:none}
+.nm.me{background:#ffd23f;color:#08263a}
+.tc{display:none}
+body.touch .tc{display:flex;position:absolute;bottom:90px;gap:10px}
+body.touch .keys{display:none}
+.tc button{width:64px;height:64px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(6,18,28,.55);color:#fff;font-size:24px;touch-action:none;user-select:none}
+.tc.l{left:12px}.tc.r{right:12px}
+body.touch #map{bottom:auto;top:110px;width:140px}
+body.touch .pos{font-size:9px}
+.panel{position:absolute;inset:0;display:grid;place-items:center;padding:16px;background:rgba(8,22,32,.35)}
+.card{background:var(--surface);color:var(--fg);border-radius:16px;padding:24px;width:min(440px,100%);box-shadow:0 20px 60px rgba(0,0,0,.35);display:grid;gap:14px;max-height:100%;overflow:auto}
+.card h1{font:800 32px/1.05 var(--display);margin:0}
+.card h2{font:800 22px var(--display);margin:0}
+.card p{margin:0;color:var(--muted);font-size:14px}
+.card label{font-size:13px;color:var(--muted);display:grid;gap:4px}
+.card input,.card select{font:500 16px var(--body);padding:10px 12px;border:1px solid var(--line);border-radius:10px;color:var(--fg);background:#fff;width:100%}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.btn{font:600 15px var(--body);padding:11px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--fg);cursor:pointer}
+.btn.pri{background:var(--sea);border-color:var(--sea);color:#fff}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sep{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px}.sep:before,.sep:after{content:"";flex:1;height:1px;background:var(--line)}
+#merr{color:var(--accent);font-size:14px;min-height:1em}
+.code{font:700 38px var(--mono);letter-spacing:.15em;color:var(--sea)}
+#rlist{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+#rlist li{padding:8px 10px;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-family:var(--mono);font-size:14px}
+td{padding:7px 6px;border-bottom:1px solid var(--line)}tr.me td{font-weight:700;background:#fff7d6}
+.help{font-size:13px;color:var(--muted);margin:0;padding-left:18px;display:grid;gap:3px}
+</style>
+</head>
+<body>
+<div id="scr">
+  <canvas id="cv" aria-label="Regata à vela na Baía do Funchal"></canvas>
+  <div id="labels"></div>
+  <div id="hud" hidden>
+    <div class="hud pos" id="rank"></div>
+    <div class="hud lap"><small>BAÍA DO FUNCHAL</small><b id="clock">VOLTA 1/2</b></div>
+    <div class="hud wind">
+      <svg viewBox="-50 -50 100 100" aria-label="Direção do vento">
+        <circle r="44" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2"/>
+        <path d="M-30 -30 A42.4 42.4 0 0 1 30 -30" fill="none" stroke="#ff6b4a" stroke-width="5" opacity=".7"/>
+        <path d="M0 -14 L7 10 L0 5 L-7 10Z" fill="#fff" opacity=".9"/>
+        <g id="warrow"><path d="M0 -46 L0 -22 M-6 -30 L0 -22 L6 -30" stroke="#5fd0ff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></g>
+      </svg>
+      <span class="k">Vento</span><span class="v" id="wspd">NE 18 nós</span>
+      <span class="k">Ângulo</span><span class="v" id="twa">—</span>
+      <span class="k">Rumo</span><span class="v" id="pt">—</span>
+    </div>
+    <div class="hud spd"><b id="kn">0.0 <small style="font-size:.4em">nós</small></b><div class="eff"><div id="effb"></div></div><small style="opacity:.75">EFICIÊNCIA DA VELA</small><span id="tip"></span></div>
+    <canvas id="map" width="240" height="150"></canvas>
+    <div class="hud" id="next"><svg id="narrow" viewBox="-10 -10 20 20"><path d="M0 -9 L7 6 L0 2 L-7 6Z" fill="#ffe14a"/></svg><span id="nxt">Boia 1</span></div>
+    <div class="keys">A/D ou ←/→ leme · W/S ou ↑/↓ caçar/folgar a vela · C câmara</div>
+    <div class="tc l"><button data-t="l" aria-label="Virar à esquerda">◀</button><button data-t="r" aria-label="Virar à direita">▶</button></div>
+    <div class="tc r"><button data-t="u" aria-label="Caçar a vela">▲</button><button data-t="d" aria-label="Folgar a vela">▼</button></div>
+    <div id="cd"></div>
+    <div id="toast"></div>
+  </div>
+
+  <div class="panel" id="menu">
+    <div class="card" id="m-main">
+      <h1>Regata do Funchal</h1>
+      <p>Regata à vela até 4 jogadores. Contorna as boias 1, 2 e 3 e passa a linha de chegada. O vento sopra de nordeste: contra o vento não andas, tens de bolinar em zigue-zague.</p>
+      <label>O teu nome<input id="name" maxlength="14" autocomplete="nickname" placeholder="Jogador"></label>
+      <button class="btn pri" id="bhost">Criar sala</button>
+      <div class="row"><input id="jcode" maxlength="4" placeholder="Código" aria-label="Código da sala" style="text-transform:uppercase"><button class="btn" id="bjoin">Entrar</button></div>
+      <div class="sep">ou</div>
+      <div class="row"><button class="btn" id="bsolo">Treinar contra bots</button><select id="slaps" aria-label="Voltas"><option value="1">1 volta</option><option value="2" selected>2 voltas</option><option value="3">3 voltas</option></select></div>
+      <ul class="help"><li>Leme: A/D ou setas ←/→</li><li>Vela: W caça, S folga. Segue a dica junto à velocidade</li><li>C muda a câmara</li></ul>
+      <p id="merr" role="status"></p>
+    </div>
+    <div class="card" id="m-room" hidden>
+      <h2>Sala</h2>
+      <div class="code" id="rcode">----</div>
+      <div class="row"><input id="rlink" readonly aria-label="Link da sala"><button class="btn" id="bcopy" style="flex:0 0 auto">Copiar</button></div>
+      <p>Envia o código ou o link aos amigos.</p>
+      <ul id="rlist"></ul>
+      <div id="rhost" class="card" style="padding:0;box-shadow:none">
+        <div class="row"><label>Voltas<select id="laps"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select></label>
+        <label style="align-content:end;display:flex;gap:6px;align-items:center"><input type="checkbox" id="bots" checked style="width:auto">Preencher com bots</label></div>
+        <button class="btn pri" id="bstart">Começar corrida</button>
+      </div>
+      <p id="rwait">À espera que o anfitrião comece a corrida…</p>
+      <button class="btn" id="bleave">Sair da sala</button>
+    </div>
+  </div>
+
+  <div class="panel" id="results" hidden>
+    <div class="card">
+      <h2>Resultados</h2>
+      <table><tbody id="rtable"></tbody></table>
+      <p id="rwait2">À espera que o anfitrião comece outra corrida…</p>
+      <div class="row"><button class="btn pri" id="bagain">Nova corrida</button><button class="btn" id="bmenu">Menu</button></div>
+    </div>
+  </div>
+  <div class="panel" id="err" hidden><div class="card"><h2>Não foi possível arrancar o 3D</h2><p>Este browser não suporta WebGL ou as bibliotecas não carregaram.</p></div></div>
+</div>
+
+<script src="lib/three.min.js"></script>
+<script src="lib/Water.js"></script>
+<script src="lib/Sky.js"></script>
+<script src="lib/peerjs.min.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
