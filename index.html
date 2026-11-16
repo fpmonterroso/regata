@@ -27,6 +27,14 @@ html,body{margin:0;height:100%;overflow:hidden;background:#9cc3d8;font-family:va
 #islot{font-size:1.9em;min-width:1.2em;text-align:center;line-height:1}
 .sw{display:inline-block;width:1.6em;height:1.6em;border-radius:4px;border:2px solid #fff}
 #blind{position:absolute;inset:0;background:#06121c;display:grid;place-items:center;text-align:center;font:600 20px var(--body)}#blind b{display:block;font:800 120px var(--display)}
+#paint{right:12px;top:50%;transform:translateY(-50%);padding:10px;display:flex;gap:10px;font-family:var(--body);font-size:13px;z-index:5;touch-action:none}
+#pwrap{position:relative;width:150px;height:250px;flex:0 0 auto;cursor:crosshair;background:#888}
+#pwrap canvas{width:100%;height:100%;display:block;image-rendering:pixelated}#pwrap svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#ptools{display:grid;gap:8px;align-content:start;width:176px}
+#ppal{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}#ppal button{aspect-ratio:1;border:2px solid rgba(255,255,255,.35);border-radius:4px;padding:0;cursor:pointer}#ppal button[aria-pressed="true"]{border-color:#fff;outline:2px solid #ffd23f}
+.prow{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+#ptools button[data-ps],#pfill,#pclose{font:600 12px var(--body);padding:5px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;cursor:pointer}
+#ptools button[data-ps][aria-pressed="true"]{background:#fff;color:#14202a}#phere{width:1.9em;height:1.9em;border-radius:4px;border:2px solid #fff;cursor:pointer}
 #bpause{top:12px;right:12px;width:44px;height:44px;color:#fff;font-size:15px;cursor:pointer;padding:0}
 .wind{top:12px;right:66px;padding:.7em .9em;display:grid;grid-template-columns:auto auto;gap:.3em .9em;align-items:center}
 .wind svg{width:5.2em;height:5.2em;grid-row:span 3}
@@ -94,6 +102,13 @@ td{padding:7px 6px;border-bottom:1px solid var(--line)}tr.me td{font-weight:700;
     </div>
     <div class="hud spd" id="spdp"><b id="kn">0.0 <small id="knu" style="font-size:.4em">nós</small></b><div class="eff"><div id="effb"></div></div><small id="efl" style="opacity:.75">EFICIÊNCIA DA VELA</small><span id="tip"></span></div>
     <div class="hud spd" id="hidep" hidden><b id="hrole" style="font-size:1.4em"></b><div id="hsw" style="display:flex;gap:.6em;align-items:center"><span class="sw" id="swme"></span>tu<span class="sw" id="swhere"></span>este sítio</div><span id="htip" style="max-width:22em;white-space:normal"></span></div>
+    <div class="hud" id="paint" hidden>
+      <div id="pwrap"><svg viewBox="0 0 48 80" aria-hidden="true"><g fill="none" stroke="#000" stroke-opacity=".55" stroke-width=".6"><ellipse cx="24" cy="10" rx="9.4" ry="8.6"/><rect x="12" y="18.6" width="24" height="29"/><rect x="36.4" y="20" width="6.6" height="27"/><rect x="5" y="20" width="6.6" height="27"/><rect x="25.7" y="47.6" width="9.6" height="32.4"/><rect x="12.7" y="47.6" width="9.6" height="32.4"/></g></svg></div>
+      <div id="ptools"><b>Pinta o teu boneco</b><div id="ppal"></div>
+        <div class="prow">Pincel <button type="button" data-ps="1.2">fino</button><button type="button" data-ps="3" aria-pressed="true">médio</button><button type="button" data-ps="6">grosso</button></div>
+        <div class="prow"><span class="sw" id="pcur"></span><button type="button" id="pfill">Encher tudo</button><button type="button" id="phere"> </button><span>cor daqui</span></div>
+        <button type="button" id="pclose">Fechar (Espaço)</button></div>
+    </div>
     <div id="blind" hidden><div>Estás a contar…<b id="blindn"></b>Os outros estão a esconder-se</div></div>
     <canvas id="map" width="240" height="150"></canvas>
     <div class="hud" id="next"><svg id="narrow" viewBox="-10 -10 20 20"><path d="M0 -9 L7 6 L0 2 L-7 6Z" fill="#ffe14a"/></svg><span id="nxt">Boia 1</span></div>
@@ -119,7 +134,7 @@ td{padding:7px 6px;border-bottom:1px solid var(--line)}tr.me td{font-weight:700;
       <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="sitems" checked style="width:auto">Caixas com objetos (turbo, balões, algas)</label>
       <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="sfauna" checked style="width:auto">Animais marinhos (tubarões, baleia, mosassauro)</label>
       <div class="row"><select id="sboats" aria-label="Número de bots"><option value="1">1 bot</option><option value="2">2 bots</option><option value="3" selected>3 bots</option><option value="4">4 bots</option><option value="5">5 bots</option><option value="6">6 bots</option><option value="7">7 bots</option><option value="8">8 bots</option><option value="9">9 bots</option><option value="10">10 bots</option><option value="11">11 bots</option><option value="12">12 bots</option><option value="13">13 bots</option><option value="14">14 bots</option></select><select id="slaps" aria-label="Voltas"><option value="1">1 volta</option><option value="2" selected>2 voltas</option><option value="3">3 voltas</option></select></div>
-      <ul class="help"><li>Virar: A/D ou setas ←/→</li><li>Veleiro: W caça a vela, S folga. Segue a dica junto à velocidade</li><li>Motas, buggy e lancha: W acelera, S trava. Em terra, Shift derrapa</li><li>Espaço ou E usa o objeto das caixas ?</li><li>Escondidas: anda a pé, Espaço pinta-te com a cor do sítio; o caçador tem de tocar nos outros</li><li>C muda a câmara · Esc ou P abre o menu</li></ul>
+      <ul class="help"><li>Virar: A/D ou setas ←/→</li><li>Veleiro: W caça a vela, S folga. Segue a dica junto à velocidade</li><li>Motas, buggy e lancha: W acelera, S trava. Em terra, Shift derrapa</li><li>Espaço ou E usa o objeto das caixas ?</li><li>Escondidas: anda a pé, Espaço abre as tintas para pintares o boneco à mão; o caçador tem de tocar nos outros</li><li>C muda a câmara · Esc ou P abre o menu</li></ul>
       <p id="merr" role="status"></p>
     </div>
     <div class="card" id="m-room" hidden>

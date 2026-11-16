@@ -12,7 +12,7 @@ Tipos de corrida: **Só mar** (voltas às boias), **Mar + terra** (as voltas no 
 
 Objetos: há caixas "?" na água em cada perna. Dão turbo, vento de feição, um balão de água para atirar ao barco da frente ou algas para largar atrás. Usa-se com Espaço ou E (★ no telemóvel) e pode desligar-se no menu.
 
-**Escondidas**: modo a pé numa zona da cidade. Um jogador é o caçador e fica 25 segundos sem ver; os outros escondem-se e pintam-se (Espaço) com a cor do sítio onde estão: parede, árvore ou chão. Depois o caçador tem 2 minutos e meio para lhes tocar. Quem é apanhado passa a caçar também. Ganham os escondidos se sobrar algum no fim.
+**Escondidas**: modo a pé numa zona da cidade. Um jogador é o caçador e fica 40 segundos sem ver; os outros escondem-se e pintam o boneco à mão (Espaço abre as tintas: tela do boneco, pincel em três grossuras, paleta de 26 cores, "encher tudo" e a cor do sítio). A pintura é enviada aos outros jogadores. Pela zona há caixotes, canteiros, tendas e muros de cores vivas para imitar. Depois o caçador tem 2 minutos e meio para lhes tocar. Quem é apanhado passa a caçar também. Ganham os escondidos se sobrar algum no fim.
 
 Animais marinhos (opcional): tubarões em patrulha, uma baleia que vem à superfície e um mosassauro que salta da água depois de um aviso de bolhas. Quem lhes toca fica a rodar uns segundos. Aparecem a vermelho no mapa.
 
