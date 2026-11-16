@@ -161,10 +161,10 @@ function polar(twa){if(twa<0.61)return 0.05+0.51*(twa/0.61)**2;return 0.45+0.55*
 const idealSheet=twa=>clamp((twa/Math.PI)*1.25/1.23,0,1);
 
 // trilho de motocross: da praia, pelo vale, até ao moinho no promontório
-const TRAIL=new THREE.CatmullRomCurve3([[520,3],[520,150],[540,300],[430,430],[280,520],[180,680],[330,800],[540,760],[690,620],[800,470],[900,560],[1020,480],[1010,300],[1040,140],[1068,62]].map(([x,d])=>V(x,0,zsF(x)-d)),false,'centripetal').getSpacedPoints(540).map(p=>({x:p.x,z:p.z})),TN=TRAIL.length,TSTEP=Math.hypot(TRAIL[1].x-TRAIL[0].x,TRAIL[1].z-TRAIL[0].z);
-TRAIL.forEach((p,i)=>{const a=TRAIL[Math.max(0,i-1)],b=TRAIL[Math.min(TN-1,i+1)],l=Math.hypot(b.x-a.x,b.z-a.z);p.tx=(b.x-a.x)/l;p.tz=(b.z-a.z)/l;p.nx=-p.tz;p.nz=p.tx;});
+const TRAIL=new THREE.CatmullRomCurve3([[520,42],[640,60],[760,100],[900,120],[1000,105],[1068,70],[1110,230],[1060,430],[910,560],[700,620],[540,760],[330,800],[180,680],[0,720],[-200,790],[-420,700],[-560,520],[-640,330],[-620,170],[-520,60],[-300,42],[0,42],[300,42]].map(([x,d])=>V(x,0,zsF(x)-d)),true,'centripetal').getSpacedPoints(1200).slice(0,1200).map(p=>({x:p.x,z:p.z})),TN=TRAIL.length,TSTEP=Math.hypot(TRAIL[1].x-TRAIL[0].x,TRAIL[1].z-TRAIL[0].z),TW=i=>TRAIL[((i%TN)+TN)%TN];
+TRAIL.forEach((p,i)=>{const a=TW(i-1),b=TW(i+1),l=Math.hypot(b.x-a.x,b.z-a.z);p.tx=(b.x-a.x)/l;p.tz=(b.z-a.z)/l;p.nx=-p.tz;p.nz=p.tx;});
 // rampas: sobem 2,6 m em 9 m e caem em 3 m; ficam nos troços mais direitos
-const RAMPS=[];for(let j=34;j<TN-30;j+=44){let k=j;while(k<j+20&&TRAIL[k].tx*TRAIL[k+5].tx+TRAIL[k].tz*TRAIL[k+5].tz<.985)k++;RAMPS.push(k);}
+const RAMPS=[];for(let j=40;j<TN-40;j+=75){let k=j;while(k<j+30&&TRAIL[k].tx*TW(k+5).tx+TRAIL[k].tz*TW(k+5).tz<.985)k++;RAMPS.push(k);}
 const rampProf=s=>s<=0||s>=12?0:s<9?2.6*s/9:2.6*(12-s)/3;
 function rampH(x,z){for(const j of RAMPS){const p=TRAIL[j],dx=x-p.x,dz=z-p.z;if(dx*dx+dz*dz>200)continue;const sd=dx*p.tx+dz*p.tz;if(sd>0&&sd<12&&Math.abs(dx*p.nx+dz*p.nz)<9)return rampProf(sd);}return 0;}
 const GY=(x,z)=>HM(x,z)+.45+rampH(x,z);
@@ -188,13 +188,13 @@ scene.environment=pmrem.fromScene(sky).texture;scene.fog.color.set(0xc4d8e4);sce
 function arch(x,y,z,tx,tz,w){const tex=canvasTex(512,64,g=>{for(let i=0;i<32;i++)for(let j=0;j<4;j++){g.fillStyle=(i+j)%2?'#111':'#fff';g.fillRect(i*16,j*16,16,16);}}),gt=new THREE.Group(),bm=new THREE.MeshStandardMaterial({map:tex}),k=M(0x111111);
   for(const s of[-1,1])cyl(.35,.45,13,M(0xff4d5e,.5),s*w/2,6.5,0,10,gt);const ban=new THREE.Mesh(new THREE.BoxGeometry(w,1.8,.3),[k,k,k,k,bm,bm]);ban.position.y=12.5;gt.add(ban);gt.position.set(x,y,z);gt.lookAt(x+tx,y,z+tz);world.add(gt);}
 {const pos=[],uv=[],idx=[];TRAIL.forEach((p,i)=>{for(let k=-2;k<=2;k++){const x=p.x+p.nx*k*5.5,z=p.z+p.nz*k*5.5;pos.push(x,HM(x,z)+.45,z);uv.push((k+2)/2,i/3);}
-    if(i<TN-1)for(let k=0;k<4;k++){const q=i*5+k;idx.push(q,q+5,q+1,q+1,q+5,q+6);}});
+    for(let k=0;k<4;k++){const q=i*5+k,r=((i+1)%TN)*5+k;idx.push(q,r,q+1,q+1,r,r+1);}});
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();
   const tex=groundTex.clone();tex.needsUpdate=true;const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:lin(0xa9824f),map:tex,roughness:1,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3}));m.receiveShadow=true;world.add(m);
   const n=Math.ceil(TN/4)*2,st=new THREE.InstancedMesh(new THREE.CylinderGeometry(.22,.22,2.2,6),M(0xffffff,.6),n),mm=new THREE.Matrix4();let c=0;
   for(let i=0;i<TN;i+=4)for(const sd of[-1,1]){const p=TRAIL[i],x=p.x+p.nx*sd*12,z=p.z+p.nz*sd*12;mm.makeTranslation(x,HM(x,z)+1.1,z);st.setMatrixAt(c,mm);st.setColorAt(c,lin((i/4)%2?0xffffff:0xe8384f));c++;}
   st.count=c;world.add(st);
-  for(const i of[3,TN-4]){const p=TRAIL[i];arch(p.x,HM(p.x,p.z),p.z,p.tx,p.tz,25);}
+  for(const i of[3]){const p=TRAIL[i];arch(p.x,HM(p.x,p.z),p.z,p.tx,p.tz,25);}
   const rt=canvasTex(128,128,g=>{g.fillStyle='#ffd23f';g.fillRect(0,0,128,128);g.fillStyle='#1a1a1a';for(let i=-128;i<256;i+=48){g.beginPath();g.moveTo(i,128);g.lineTo(i+24,128);g.lineTo(i+88,0);g.lineTo(i+64,0);g.fill();}},true),rm=new THREE.MeshStandardMaterial({map:rt,roughness:.7,side:THREE.DoubleSide});
   for(const j of RAMPS){const p=TRAIL[j],v=[],uvs=[];for(const sd of[0,9,12])for(const l of[-9,9]){const x=p.x+p.tx*sd+p.nx*l,z=p.z+p.tz*sd+p.nz*l;v.push(x,HM(x,z)+.5+rampProf(sd===12?0:sd),z);uvs.push(l>0?2:0,sd/6);}
     const g2=new THREE.BufferGeometry();g2.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g2.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));g2.setIndex([0,2,1,1,2,3,2,4,3,3,4,5,0,2,4,1,3,5]);g2.computeVertexNormals();const rmesh=new THREE.Mesh(g2,rm);rmesh.castShadow=rmesh.receiveShadow=true;world.add(rmesh);}}
@@ -209,7 +209,7 @@ const blocked=(x,z)=>H(x,z)>-1.5||COL.some(c=>(x-c[0])**2+(z-c[1])**2<c[2]*c[2])
 const MARKS=[V(420,0,-60),V(-250,0,-80),V(-300,0,300),V(700,0,150),V(-650,0,150),V(250,0,550),V(-50,0,-150)],GATE=V(60,0,260),R_MARK=28,LET='ABCDEFG';
 // cada volta tem o seu percurso; todas acabam na linha de partida/chegada
 const LAPS=[[0,1,2],[3,5,4],[6,0,5]],LAPNAME=['Baía','Volta larga','Junto à cidade'];
-const LANDPT=V(TRAIL[0].x,0,TRAIL[0].z+26);
+const LANDPT=V(520,0,zsF(520)+24);
 const route=l=>[...LAPS[l%LAPS.length].map(i=>MARKS[i]),cfg.mode==='both'&&l===laps-1?LANDPT:GATE],tgt=b=>route(b.lap)[Math.min(b.mark,route(b.lap).length-1)],markId=b=>LAPS[b.lap%LAPS.length][b.mark];
 const numTex=n=>canvasTex(128,128,g=>{g.fillStyle='rgba(6,18,28,.75)';g.beginPath();g.arc(64,64,58,0,7);g.fill();g.fillStyle='#fff';g.font='bold 80px Arial';g.textAlign='center';g.textBaseline='middle';g.fillText(n,64,68);});
 const markObjs=MARKS.map((p,i)=>{const b=new THREE.Group();cyl(2.6,3.6,7,M(0xff6a1f,.4),0,1.5,0,16,b);cyl(3,3.1,1.2,M(0xffffff,.4),0,3.6,0,16,b);cyl(.15,.15,6,M(0x333333),0,8,0,6,b);
@@ -250,11 +250,11 @@ function makeBuggy(hex){const bike=new THREE.Group(),g=new THREE.Group();bike.ad
 /* ---------- barcos ---------- */
 const MAXB=15,COLORS=[0xffc928,0xe8384f,0x22b37a,0x6a55f0,0xff8a1f,0x1fa3e8,0xf05ac8,0x8bd13a,0x8a5a3a,0xffffff,0x1d2b3a,0x3fd6c6,0xb39ddb,0xc0392b,0x9e9e2e],BASE=24,KN=9.5/BASE;
 const lbBox=document.getElementById('labels');let boats=[],me=null,laps=2;
-function addBoat(p){const b=Object.assign(cfg.veh==='sail'?makeSailboat(COLORS[p.slot],String(p.slot+1)):makeMotor(COLORS[p.slot],cfg.veh),cfg.mode!=='sea'?(cfg.lveh==='buggy'?makeBuggy:makeBike)(COLORS[p.slot]):{},{land:0,ti:0,dir:1,y:0,vy:0,gy0:0,air:false,lean:0,pitch:0,rudIn:0,id:p.id,name:p.name,slot:p.slot,bot:!!p.bot,hex:COLORS[p.slot],x:0,z:0,hd:0,v:0,s:.3,mark:0,lap:0,fin:null,lee:1,luff:0,eff:0,twa:0,tx:0,tz:0,thd:0,seen:false,skill:p.bot?.88+Math.random()*.07:1,tack:1,fwd:V(1,0,0)});
+function addBoat(p){const b=Object.assign(cfg.veh==='sail'?makeSailboat(COLORS[p.slot],String(p.slot+1)):makeMotor(COLORS[p.slot],cfg.veh),cfg.mode!=='sea'?(cfg.lveh==='buggy'?makeBuggy:makeBike)(COLORS[p.slot]):{},{land:0,ti:0,tp:0,ll:0,y:0,vy:0,gy0:0,air:false,lean:0,pitch:0,rudIn:0,id:p.id,name:p.name,slot:p.slot,bot:!!p.bot,hex:COLORS[p.slot],x:0,z:0,hd:0,v:0,s:.3,mark:0,lap:0,fin:null,lee:1,luff:0,eff:0,twa:0,tx:0,tz:0,thd:0,seen:false,skill:p.bot?.88+Math.random()*.07:1,tack:1,fwd:V(1,0,0)});
   b.lb=document.createElement('div');b.lb.className='nm'+(p.id===myId?' me':'');b.lb.textContent=p.name;lbBox.appendChild(b.lb);boats.push(b);return b;}
 function removeBoat(id){const b=boats.find(x=>x.id===id);if(!b)return;scene.remove(b.outer);if(b.bike)scene.remove(b.bike);b.lb.remove();boats=boats.filter(x=>x!==b);}
 function clearBoats(){boats.slice().forEach(b=>removeBoat(b.id));me=null;}
-const progress=b=>{if(b.fin!=null)return 1e9-b.fin;if(b.land)return 1e6+(b.lap*2*TN+(b.dir>0?b.ti:2*TN-b.ti))*10;const t=tgt(b);return (b.lap*10+b.mark)*1e4-Math.hypot(t.x-b.x,t.z-b.z);};
+const progress=b=>{if(b.fin!=null)return 1e9-b.fin;if(b.land)return 1e6+b.tp*10;const t=tgt(b);return (b.lap*10+b.mark)*1e4-Math.hypot(t.x-b.x,t.z-b.z);};
 
 function physics(b,dt,rud,inp,drift){ // inp: vela (+ folga, - caça) ou acelerador (- acelera, + trava)
   for(const k of['boost','fav','stun'])if(b[k]>0)b[k]-=dt;
@@ -279,11 +279,11 @@ function physics(b,dt,rud,inp,drift){ // inp: vela (+ folga, - caça) ou acelera
       else{b.lap++;if(b.lap>=laps){b.fin=raceT;if(b===me)onFinish();}else{b.mark=0;if(b===me)toast('Volta '+(b.lap+1)+' de '+laps+': '+LAPNAME[b.lap%LAPS.length]);}}}
     else{if(b===me)toast('Boia '+LET[markId(b)]+' ✓');b.mark++;}}}
 }
-function enterLand(b,i){const p=TRAIL[i||0];b.land=1;b.on=true;b.ti=i||0;b.dir=1;b.v=0;b.x=p.x;b.z=p.z;b.hd=b.va=Math.atan2(-p.tz,p.tx);b.y=b.gy0=GY(p.x,p.z);b.vy=0;b.tx=b.x;b.tz=b.z;b.thd=b.hd;}
+function enterLand(b,i){const p=TRAIL[i||0];b.land=1;b.on=true;b.ti=b.tp=i||0;b.ll=0;b.v=0;b.x=p.x;b.z=p.z;b.hd=b.va=Math.atan2(-p.tz,p.tx);b.y=b.gy0=GY(p.x,p.z);b.vy=0;b.tx=b.x;b.tz=b.z;b.thd=b.hd;}
 function landPhysics(b,dt,rud,inp,drift){
   if(dt<=0)return;
-  let bi=b.ti,bd=1e9;for(let j=Math.max(0,b.ti-8);j<=Math.min(TN-1,b.ti+8);j++){const p=TRAIL[j],d=(p.x-b.x)**2+(p.z-b.z)**2;if(d<bd){bd=d;bi=j;}}
-  bd=Math.sqrt(bd);if(bd<34)b.ti=bi;const on=bd<12.5;b.on=on;
+  let bi=0,bd=1e9;for(let j=-8;j<=8;j++){const p=TW(b.ti+j),d=(p.x-b.x)**2+(p.z-b.z)**2;if(d<bd){bd=d;bi=j;}}
+  bd=Math.sqrt(bd);if(bd<34){b.ti=((b.ti+bi)%TN+TN)%TN;b.tp+=bi;}const on=bd<12.5;b.on=on;
   const thr=b.fin!=null?0:b.bot?1:inp<0?1:inp>0?-1:0,fx=Math.cos(b.hd),fz=-Math.sin(b.hd),grade=(HM(b.x+fx*2,b.z+fz*2)-HM(b.x,b.z))/2;
   const bg=cfg.lveh==='buggy';let top=(on?(bg?31:34):(bg?21:13))*b.skill*(1-clamp(grade*.9,-.15,.45)),acc=thr>0?1.1:thr<0?2.5:.5,target=thr>0?top:0;
   if(b.boost>0||b.fav>0){target=Math.max(target,on?44:20);acc=2.5;}
@@ -295,10 +295,9 @@ function landPhysics(b,dt,rud,inp,drift){
   for(const o of boats){if(o===b||!o.land)continue;const dx=b.x-o.x,dz=b.z-o.z,d=Math.hypot(dx,dz);const cr=bg?4.5:3;if(d<cr&&d>.01){b.x+=dx/d*(cr-d)*.5;b.z+=dz/d*(cr-d)*.5;}}
   const gy=GY(b.x,b.z);b.vy-=32*dt;b.y+=b.vy*dt;if(b.y<=gy){b.y=gy;b.vy=clamp((gy-b.gy0)/dt,-40,16);}b.air=b.y>gy+.35;b.gy0=gy;
   if(b.fin==null){
-    if(b.dir>0&&b.ti>=TN-5){if(cfg.mode==='both'){b.fin=raceT;if(b===me)onFinish();}else{b.dir=-1;b.hd+=Math.PI;b.va=b.hd;b.v=0;if(b===me)toast('Moinho ✓ Agora a descer até à praia!',2.5);}}
-    else if(b.dir<0&&b.ti<=4){b.lap++;if(b.lap>=laps){b.fin=raceT;if(b===me)onFinish();}else{b.dir=1;b.hd+=Math.PI;b.va=b.hd;b.v=0;if(b===me)toast('Volta '+(b.lap+1)+' de '+laps);}}}
+    if(b.tp>=(b.ll+1)*TN+3){b.ll++;const need=cfg.mode==='both'?1:laps;if(b.ll>=need){b.fin=raceT;if(b===me)onFinish();}else{b.lap=b.ll;if(b===me)toast('Volta '+(b.ll+1)+' de '+laps);}}}
 }
-function botCtl(b){if(b.land){const p=TRAIL[clamp(b.ti+b.dir*5,0,TN-1)],o=(b.slot%5-2)*2.6;return clamp(angDiff(Math.atan2(-(p.z+p.nz*o-b.z),p.x+p.nx*o-b.x),b.hd)*3,-1,1);}
+function botCtl(b){if(b.land){const p=TW(b.ti+5),o=(b.slot%5-2)*2.6;return clamp(angDiff(Math.atan2(-(p.z+p.nz*o-b.z),p.x+p.nx*o-b.x),b.hd)*3,-1,1);}
   const t=tgt(b),tb=Math.atan2(-(t.z-b.z),t.x-b.x),d=angDiff(tb,wAng);let want;
   if(cfg.veh!=='sail'||Math.abs(d)>.85)want=tb;else{if(Math.abs(d)>.3)b.tack=Math.sign(d);want=wAng+b.tack*.82;
     if(blocked(b.x+Math.cos(want)*45,b.z-Math.sin(want)*45)){b.tack=-b.tack;want=wAng+b.tack*.82;}}
@@ -340,7 +339,7 @@ const boxGeo=new THREE.BoxGeometry(4,4,4),boxMat=new THREE.MeshStandardMaterial(
 {const legs=new Set();LAPS.forEach((L,li)=>{const r=route(li),from=[li?GATE:GATE,...r];for(let i=0;i<r.length;i++){const a=from[i],b=r[i],k=[a.x,a.z,b.x,b.z].join();if(legs.has(k))continue;legs.add(k);
   const mx=(a.x+b.x)/2,mz=(a.z+b.z)/2,dx=b.x-a.x,dz=b.z-a.z,l=Math.hypot(dx,dz),px=-dz/l,pz=dx/l;
   for(const o of[-18,0,18]){const x=mx+px*o,z=mz+pz*o;if(blocked(x,z))continue;const m=new THREE.Mesh(boxGeo,boxMat);m.position.set(x,2.5,z);m.castShadow=true;scene.add(m);boxes.push({m,x,z,y:2.5,t:0});}}});
- for(const j of RAMPS){const p=TRAIL[Math.min(TN-8,j+22)];for(const o of[-7,0,7]){const x=p.x+p.nx*o,z=p.z+p.nz*o,y=HM(x,z)+3,m=new THREE.Mesh(boxGeo,boxMat);m.scale.setScalar(.7);m.position.set(x,y,z);scene.add(m);boxes.push({m,x,z,y,land:1,t:0});}}}
+ for(const j of RAMPS.filter((_,i)=>i%2===0)){const p=TW(j+22);for(const o of[-7,0,7]){const x=p.x+p.nx*o,z=p.z+p.nz*o,y=HM(x,z)+3,m=new THREE.Mesh(boxGeo,boxMat);m.scale.setScalar(.7);m.position.set(x,y,z);scene.add(m);boxes.push({m,x,z,y,land:1,t:0});}}}
 const weedMat=M(0x2f5a1c,.95),ballMat=M(0x3fb6ff,.2,0,{transparent:true,opacity:.85});
 function rollItem(b){const ord=[...boats].sort((a,c)=>progress(c)-progress(a)),r=boats.length>1?ord.indexOf(b)/(boats.length-1):.5;
   const w=[['boost',.2+.35*r],['fav',.15+.2*r],['ball',.3],['weed',.35-.25*r]];let s=Math.random()*w.reduce((a,x)=>a+x[1],0);for(const [k,v] of w){if((s-=v)<=0)return k;}return 'boost';}
@@ -363,7 +362,7 @@ function pickTarget(b){let best=null,bd=1e9;for(const o of boats){if(o===b||o.fi
   if(!best){const ord=[...boats].sort((a,c)=>progress(c)-progress(a)),i=ord.indexOf(b);if(i>0&&Math.hypot(ord[i-1].x-b.x,ord[i-1].z-b.z)<220)best=ord[i-1];}return best;}
 function fireBall(a,t){const o=new THREE.Mesh(new THREE.SphereGeometry(1.4,12,10),ballMat);scene.add(o);shots.push({o,from:a,to:t,t:0});
   if(!t.remote)setTimeout(()=>{if(racing&&boats.includes(t))hitBoat(t,a.name);},700);}
-function hitBoat(b,by){b.stun=1.6;b.boost=0;if(b===me)toast(by==='algas'?'Ficaste preso nas algas!':'Atingido por '+by+'!',2);}
+function hitBoat(b,by){b.stun=1.6;b.boost=0;if(b===me)toast(by==='algas'?'Ficaste preso nas algas!':/^(um|uma|o) /.test(by)?'Atacado por '+by+'!':'Atingido por '+by+'!',2);}
 function addMine(id,x,z,by){const o=new THREE.Group();const d=new THREE.Mesh(new THREE.CylinderGeometry(6,6,.3,18),weedMat);o.add(d);for(let i=0;i<7;i++){const s=new THREE.Mesh(new THREE.ConeGeometry(.5,3+Math.random()*2,5),weedMat);s.position.set((Math.random()-.5)*8,1.5,(Math.random()-.5)*8);o.add(s);}
   o.position.set(x,hF(x,z)>0?HM(x,z)+.6:.1,z);scene.add(o);mines.push({id,x,z,by,o,age:0});}
 function removeMine(id){const m=mines.find(x=>x.id===id);if(!m)return;scene.remove(m.o);mines=mines.filter(x=>x!==m);}
@@ -373,6 +372,32 @@ function onEv(e){if(!racing)return;const by=boats.find(b=>b.id===e.by);
   else if(e.k==='weed'){if(!mines.some(m=>m.id===e.id))addMine(e.id,e.x,e.z,e.by);}
   else if(e.k==='gone')removeMine(e.id);}
 function sendEv(e,except){if(solo)return;const m={t:'ev',e};if(isHost)conns.forEach(c=>{if(c!==except&&c.open)c.send(m);});else if(hostConn&&hostConn.open)hostConn.send(m);}
+
+/* ---------- animais marinhos: a posição depende só do tempo de corrida, por isso é igual em todos os jogadores ---------- */
+const fauna=(()=>{const dk=M(0x4a5560,.6),wh=M(0x2e3d4d,.5),mo=M(0x2f4a3a,.6),belly=M(0xd8d2c0,.7);
+  const ell=(mat,sx,sy,sz,par,x=0,y=0,z=0)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(1,14,10),mat);m.scale.set(sx,sy,sz);m.position.set(x,y,z);m.castShadow=true;par.add(m);return m;};
+  const sharks=[[120,40,80,.16,0],[-280,180,90,-.14,2],[450,330,100,.13,4]].map(([cx,cz,r,w,ph])=>{const g=new THREE.Group();ell(dk,4.5,1,1.1,g,0,-.9,0);
+    const fin=new THREE.Mesh(new THREE.ConeGeometry(1,2.8,4),dk);fin.scale.set(1.2,1,.25);fin.position.set(-.3,1,0);g.add(fin);const tl=new THREE.Mesh(new THREE.ConeGeometry(.7,1.8,4),dk);tl.scale.set(1,1,.25);tl.position.set(-4.6,.2,0);g.add(tl);
+    return {g,cx,cz,r,w,ph,x:0,z:0,R:7,name:'um tubarão',stun:1.6};});
+  const wg=new THREE.Group();ell(wh,13,3.2,3.6,wg);ell(wh,2,.8,.6,wg,-4,3,0);box(4,.5,7.5,wh,-14,.5,0,0,wg);ell(belly,9,1.6,2.6,wg,2,-1.9,0);
+  const mg2=new THREE.Group();ell(mo,13,2,2.2,mg2);ell(mo,4.2,1.5,1.6,mg2,14,.5,0);box(5.5,.5,2.2,belly,15,-.9,0,0,mg2).rotation.z=-.3;for(let i=0;i<6;i++){const t=new THREE.Mesh(new THREE.ConeGeometry(.22,.8,5),belly);t.position.set(13.5+i*.8,-.2-i*.1,i%2?.7:-.7);t.rotation.x=Math.PI;mg2.add(t);}
+  for(const [x,z] of[[5,2.8],[5,-2.8],[-6,2.3],[-6,-2.3]])ell(mo,2.6,.3,1.3,mg2,x,-1,z);ell(mo,8,1.2,.5,mg2,-19,.3,0);
+  const whale={g:wg,x:0,z:0,R:14,name:'uma baleia',stun:1.8},mosa={g:mg2,x:0,z:0,R:17,name:'o mosassauro',stun:2.6},all=[...sharks,whale,mosa];
+  all.forEach(c=>{c.g.visible=false;scene.add(c.g);});return {sharks,whale,mosa,all};})();
+const MSPOTS=[[240,100],[90,-70],[-250,110],[-120,280],[380,350],[-450,150],[150,420],[330,-10]],rr=()=>Math.random()-.5;
+function stepFauna(dt){const on=!!cfg.fauna&&cfg.mode!=='land'&&racing;if(!on){fauna.all.forEach(c=>{c.g.visible=false;c.act=false;});return;}
+  const t=Math.max(0,raceT),fx=dt>0&&!reduce;
+  for(const s of fauna.sharks){const a=s.ph+t*s.w,sg=Math.sign(s.w);s.x=s.cx+Math.cos(a)*s.r;s.z=s.cz+Math.sin(a)*s.r;s.act=true;s.g.visible=true;s.g.position.set(s.x,Math.sin(t*1.3+s.ph)*.25,s.z);s.g.rotation.y=Math.atan2(-Math.cos(a)*sg,-Math.sin(a)*sg);
+    if(fx&&Math.random()<.4)emit(s.x,.15,s.z,rr()*2,0,rr()*2,2.5,.6,1);}
+  const w=fauna.whale,a=t*.02,up=Math.sin(t*.22);w.x=80+520*Math.sin(a);w.z=260+170*Math.sin(a*1.55+1);w.act=up>.2;w.g.visible=true;
+  w.g.position.set(w.x,-6+clamp(up+.3,0,1)*4.8,w.z);w.g.rotation.y=Math.atan2(-170*1.55*Math.cos(a*1.55+1),520*Math.cos(a));
+  if(fx&&up>.85)for(let i=0;i<3;i++)emit(w.x+Math.cos(w.g.rotation.y)*7,3,w.z-Math.sin(w.g.rotation.y)*7,rr()*3,11+Math.random()*6,rr()*3,1.3,.6,0);
+  const m=fauna.mosa,k=Math.floor(t/32),ph=t-k*32,sp=MSPOTS[(k*5+3)%8],ang=k*2.4;m.x=sp[0];m.z=sp[1];m.act=false;m.g.visible=false;
+  if(ph>=22&&ph<26){if(fx)for(let i=0;i<4;i++)emit(m.x+rr()*26,.2,m.z+rr()*26,0,2+Math.random()*3,0,.9,.8,0);if(me&&!me.land&&(me.x-m.x)**2+(me.z-m.z)**2<8100)toast('Algo se mexe debaixo de água…');}
+  else if(ph>=26&&ph<29.5){const u=(ph-26)/3.5,dx=Math.cos(ang),dz=-Math.sin(ang);m.x=sp[0]+dx*(u-.5)*36;m.z=sp[1]+dz*(u-.5)*36;m.g.visible=true;m.g.position.set(m.x,-4+Math.sin(u*Math.PI)*9.5,m.z);m.g.rotation.set(0,ang,0);m.g.rotateZ((.5-u)*1.7);m.act=u>.12&&u<.88;
+    if(fx&&(u<.25||u>.75))for(let i=0;i<10;i++)emit(m.x+rr()*10,.5,m.z+rr()*10,rr()*16,5+Math.random()*10,rr()*16,1,.8,0);}
+  for(const b of boats){if(b.remote||b.land||b.fin!=null||b.stun>0||raceT<b.cdC)continue;for(const c of fauna.all){if(c.act&&(b.x-c.x)**2+(b.z-c.z)**2<c.R*c.R){b.cdC=raceT+5;hitBoat(b,c.name);b.stun=c.stun;break;}}}
+}
 
 /* ---------- entrada ---------- */
 const keys={},touch={};
@@ -416,12 +441,12 @@ function clientData(d){
   if(d.t==='welcome')myId=d.id;
   else if(d.t==='lobby'){$('merr').textContent='';players=d.players;laps=d.laps;endRace();showRoom();}
   else if(d.t==='full'){$('merr').textContent='Sala cheia ou corrida já a decorrer.';resetNet();showMenu('main');}
-  else if(d.t==='start')startRace(d.players,d.laps,d.items,d.mode,d.veh,d.lveh);
+  else if(d.t==='start')startRace(d.players,d.laps,d.items,d.mode,d.veh,d.lveh,d.fauna);
   else if(d.t==='s')applyStates(d.b);
   else if(d.t==='ev')onEv(d.e);}
-const pack=b=>[b.id,+b.x.toFixed(1),+b.z.toFixed(1),+b.hd.toFixed(3),+b.v.toFixed(2),+b.s.toFixed(2),b.mark,b.lap,b.fin,b.land,b.ti,b.dir];
+const pack=b=>[b.id,+b.x.toFixed(1),+b.z.toFixed(1),+b.hd.toFixed(3),+b.v.toFixed(2),+b.s.toFixed(2),b.mark,b.lap,b.fin,b.land,b.ti,b.tp];
 function applyStates(arr){if(!racing)return;for(const p of arr){if(p[0]===myId)continue;const b=boats.find(x=>x.id===p[0]);if(!b||!b.remote)continue;
-  const wl=b.land;[,b.tx,b.tz,b.thd,b.v,b.s,b.mark,b.lap,b.fin,b.land,b.ti,b.dir]=p;if(!b.seen||b.land&&!wl){b.x=b.tx;b.z=b.tz;b.hd=b.thd;b.seen=true;}}}
+  const wl=b.land;[,b.tx,b.tz,b.thd,b.v,b.s,b.mark,b.lap,b.fin,b.land,b.ti,b.tp]=p;if(!b.seen||b.land&&!wl){b.x=b.tx;b.z=b.tz;b.hd=b.thd;b.seen=true;}}}
 
 /* ---------- menus ---------- */
 function showMenu(w){$('menu').hidden=false;$('results').hidden=true;['main','room'].forEach(s=>$('m-'+s).hidden=s!==w);}
@@ -433,13 +458,13 @@ function showRoom(){showMenu('room');$('rcode').textContent=code;const url=locat
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 $('bhost').onclick=()=>{saveName();hostRoom();};
 $('bjoin').onclick=()=>{saveName();const c=$('jcode').value.trim();if(c.length<4){$('merr').textContent='Escreve o código da sala (4 letras).';return;}joinRoom(c);};
-$('bsolo').onclick=()=>{saveName();resetNet();isHost=true;solo=true;myId='h';laps=+$('slaps').value;lastPs=fillBots([{id:'h',name:myName(),slot:0}],1+(+$('sboats').value));startRace(lastPs,laps,$('sitems').checked,$('smode').value,$('sveh').value,$('slveh').value);};
-$('bstart').onclick=()=>{laps=+$('laps').value;const ps=fillBots(players,players.length+(+$('nboats').value));itemsOn=$('ritems').checked;cfg={mode:$('rmode').value,veh:$('rveh').value,lveh:$('rlveh').value};bcast({t:'start',players:ps,laps,items:itemsOn,mode:cfg.mode,veh:cfg.veh,lveh:cfg.lveh});startRace(ps,laps,itemsOn,cfg.mode,cfg.veh,cfg.lveh);};
+$('bsolo').onclick=()=>{saveName();resetNet();isHost=true;solo=true;myId='h';laps=+$('slaps').value;lastPs=fillBots([{id:'h',name:myName(),slot:0}],1+(+$('sboats').value));startRace(lastPs,laps,$('sitems').checked,$('smode').value,$('sveh').value,$('slveh').value,$('sfauna').checked);};
+$('bstart').onclick=()=>{laps=+$('laps').value;const ps=fillBots(players,players.length+(+$('nboats').value));itemsOn=$('ritems').checked;cfg={mode:$('rmode').value,veh:$('rveh').value,lveh:$('rlveh').value,fauna:$('rfauna').checked};bcast({t:'start',players:ps,laps,items:itemsOn,mode:cfg.mode,veh:cfg.veh,lveh:cfg.lveh,fauna:cfg.fauna});startRace(ps,laps,itemsOn,cfg.mode,cfg.veh,cfg.lveh,cfg.fauna);};
 $('bleave').onclick=()=>{resetNet();showMenu('main');};
 $('bcopy').onclick=()=>{$('rlink').select();navigator.clipboard&&navigator.clipboard.writeText($('rlink').value);$('bcopy').textContent='Copiado';setTimeout(()=>$('bcopy').textContent='Copiar',1500);};
 $('nboats').onchange=()=>showRoom();$('laps').onchange=()=>{laps=+$('laps').value;if(isHost)bcast({t:'lobby',players,laps});};
 $('bagain').onclick=()=>{if(solo)restart();else if(isHost){endRace();sendLobby();}};
-function restart(){if(!lastPs)return;if(!solo&&isHost)bcast({t:'start',players:lastPs,laps,items:itemsOn,mode:cfg.mode,veh:cfg.veh,lveh:cfg.lveh});startRace(lastPs,laps,itemsOn,cfg.mode,cfg.veh,cfg.lveh);}
+function restart(){if(!lastPs)return;if(!solo&&isHost)bcast({t:'start',players:lastPs,laps,items:itemsOn,mode:cfg.mode,veh:cfg.veh,lveh:cfg.lveh,fauna:cfg.fauna});startRace(lastPs,laps,itemsOn,cfg.mode,cfg.veh,cfg.lveh,cfg.fauna);}
 function setPause(v){paused=v;$('pause').hidden=!v;if(!v)return;
   $('pnote').textContent=solo?'Corrida em pausa.':'No multijogador a corrida continua enquanto este menu está aberto.';
   $('prestart').hidden=!(solo||isHost);$('plobby').hidden=!(isHost&&!solo);$('prestart').textContent=solo?'Recomeçar':'Recomeçar para todos';}
@@ -455,8 +480,8 @@ try{$('name').value=localStorage.getItem('regata-nome')||'';}catch(e){}
 
 /* ---------- corrida ---------- */
 let lastPs=null,paused=false,raceT=-99,t0=0,camMode=0,netT=0,hudT=0,mapT=0,snap=true,finShown=false;
-function startRace(ps,lp,it,mode,veh,lveh){
-  clearBoats();cfg={mode:mode||'sea',veh:veh||'sail',lveh:lveh||'bike'};laps=lp;itemsOn=it!==false;clearItems();racing=true;finShown=false;lastPs=ps;setPause(false);
+function startRace(ps,lp,it,mode,veh,lveh,fa){
+  clearBoats();cfg={mode:mode||'sea',veh:veh||'sail',lveh:lveh||'bike',fauna:fa!==false};laps=lp;itemsOn=it!==false;clearItems();racing=true;finShown=false;lastPs=ps;setPause(false);
   const dir=MARKS[0].clone().sub(GATE).normalize(),perp=V(-dir.z,0,dir.x),brg=Math.atan2(-dir.z,dir.x);
   for(const p of ps){const b=addBoat(p);b.remote=!(p.id===myId||(isHost&&p.bot));
     const gi=ps.indexOf(p),row=Math.floor(gi/5),col=gi%5-2;b.x=GATE.x-dir.x*(45+row*20)+perp.x*col*14;b.z=GATE.z-dir.z*(45+row*20)+perp.z*col*14;
@@ -465,7 +490,7 @@ function startRace(ps,lp,it,mode,veh,lveh){
     if(p.id===myId)me=b;}
   t0=performance.now()+4000;raceT=-4;snap=true;pL.fill(0);
   $('menu').hidden=true;$('results').hidden=true;$('hud').hidden=false;}
-function endRace(){racing=false;clearItems();setPause(false);clearBoats();$('hud').hidden=true;$('results').hidden=true;$('cd').textContent='';}
+function endRace(){racing=false;stepFauna(0);clearItems();setPause(false);clearBoats();$('hud').hidden=true;$('results').hidden=true;$('cd').textContent='';}
 const fmt=t=>t==null?'—':String(Math.floor(t/60)).padStart(2,'0')+':'+(t%60).toFixed(2).padStart(5,'0');
 function onFinish(){const pos=[...boats].sort((a,c)=>progress(c)-progress(a)).indexOf(me)+1;toast('Chegada! '+pos+'.º lugar',3);}
 function renderResults(){const ord=[...boats].sort((a,c)=>progress(c)-progress(a));
@@ -476,12 +501,13 @@ let toastT=0;function toast(s,dur){const e=$('toast');if(e.textContent===s&&toas
 /* ---------- HUD ---------- */
 const pointName=d=>d<40?'Contra o vento':d<70?'Bolina':d<120?'Través':d<155?'Largo':'Popa';
 const mapC=$('map'),mg=mapC.getContext('2d');
-function drawMap(){const land=me&&me.land,MX=land?[-100,1300]:[-750,750],MZ=land?[-1170,-290]:[-420,480];const w=mapC.width,h=mapC.height,sx=x=>(x-MX[0])/(MX[1]-MX[0])*w,sz=z=>(z-MZ[0])/(MZ[1]-MZ[0])*h;
+function drawMap(){const land=me&&me.land,MX=land?[-830,1320]:[-750,750],MZ=land?[-1330,10]:[-420,480];const w=mapC.width,h=mapC.height,sx=x=>(x-MX[0])/(MX[1]-MX[0])*w,sz=z=>(z-MZ[0])/(MZ[1]-MZ[0])*h;
   mg.clearRect(0,0,w,h);mg.fillStyle='rgba(11,79,102,.55)';mg.fillRect(0,0,w,h);mg.fillStyle='rgba(70,110,60,.9)';mg.beginPath();mg.moveTo(0,0);for(let x=MX[0];x<=MX[1];x+=25)mg.lineTo(sx(x),sz(zsF(x)));mg.lineTo(w,0);mg.fill();
   mg.fillStyle='rgba(170,165,150,.95)';for(const c of COL){mg.beginPath();mg.arc(sx(c[0]),sz(c[1]),Math.max(1.2,c[2]/(MX[1]-MX[0])*w),0,7);mg.fill();}
-  mg.strokeStyle='#c9a06a';mg.lineWidth=land?4:2;mg.beginPath();TRAIL.forEach((p,i)=>i?mg.lineTo(sx(p.x),sz(p.z)):mg.moveTo(sx(p.x),sz(p.z)));if(cfg.mode!=='sea')mg.stroke();mg.lineWidth=1;
+  mg.strokeStyle='#c9a06a';mg.lineWidth=land?4:2;mg.beginPath();TRAIL.forEach((p,i)=>i?mg.lineTo(sx(p.x),sz(p.z)):mg.moveTo(sx(p.x),sz(p.z)));mg.closePath();if(cfg.mode!=='sea')mg.stroke();mg.lineWidth=1;
   mg.strokeStyle='rgba(255,255,255,.35)';mg.setLineDash([4,4]);mg.beginPath();const RT=land?[]:me?route(me.lap):route(0);if(!land)mg.moveTo(sx(GATE.x),sz(GATE.z));RT.forEach(p=>mg.lineTo(sx(p.x),sz(p.z)));mg.stroke();mg.setLineDash([]);
   RT.forEach((p,i)=>{const nx=me&&me.mark===i&&me.fin==null;mg.fillStyle=i===RT.length-1?'#fff':'#ff6a1f';mg.beginPath();mg.arc(sx(p.x),sz(p.z),nx?6:4,0,7);mg.fill();if(nx){mg.strokeStyle='#ffe14a';mg.lineWidth=2;mg.stroke();mg.lineWidth=1;}});
+  if(!land)for(const c of fauna.all){if(!c.act)continue;mg.fillStyle='#ff4d4d';mg.beginPath();mg.arc(sx(c.x),sz(c.z),c.R>10?5:3,0,7);mg.fill();}
   for(const b of boats){mg.save();mg.translate(sx(b.x),sz(b.z));mg.rotate(-b.hd);mg.fillStyle='#'+new THREE.Color(b.hex).getHexString();mg.beginPath();mg.moveTo(7,0);mg.lineTo(-4,4);mg.lineTo(-4,-4);mg.fill();if(b===me){mg.strokeStyle='#fff';mg.stroke();}mg.restore();}
   const wx=w-18,wy=18;mg.strokeStyle='#5fd0ff';mg.lineWidth=2.5;mg.beginPath();mg.moveTo(wx+windFrom.x*12,wy+windFrom.z*12);mg.lineTo(wx-windFrom.x*8,wy-windFrom.z*8);mg.stroke();mg.lineWidth=1;}
 function hud(look){const el=x=>$(x);
@@ -494,7 +520,7 @@ function hud(look){const el=x=>$(x);
   const sail=cfg.veh==='sail'&&!me.land;$('windw').hidden=!!me.land;$('efl').textContent=sail?'EFICIÊNCIA DA VELA':'VELOCIDADE';$('keys').textContent=sail?'A/D ou ←/→ leme · W/S ou ↑/↓ caçar/folgar a vela · Espaço objeto · C câmara · Esc menu':'A/D ou ←/→ virar · W ou ↑ acelerar · S ou ↓ travar'+(me.land?' · Shift derrapar':'')+' · Espaço objeto · C câmara · Esc menu';document.body.classList.toggle('land',!!me.land);
   if(!sail){el('kn').firstChild.nodeValue=me.land?Math.round(me.v*3.6)+' ':(me.v*1.6).toFixed(0)+' ';el('knu').textContent=me.land?'km/h':'nós';el('effb').style.width=Math.round(clamp(me.land?me.v/34:me.eff,0,1)*100)+'%';}else el('knu').textContent='nós';
   let tip='';if(!sail)tip=me.land&&!me.on?'Fora do trilho!':me.land&&me.dr?'A derrapar!':'';else if(me.twa<.61)tip='Estás contra o vento: vira para um dos lados';else if(me.s>me.ideal+.1)tip='Caça a vela (W ou ↑)';else if(me.s<me.ideal-.1)tip='Folga a vela (S ou ↓)';else tip='Vela bem afinada';el('tip').textContent=tip;el('tip').className=tip==='Vela bem afinada'?'ok':'';
-  if(me.fin==null&&me.land){const p=TRAIL[clamp(me.ti+me.dir*6,0,TN-1)],dx=p.x-me.x,dz=p.z-me.z;el('nxt').textContent=(me.dir>0?(cfg.mode==='both'?'Meta no moinho':'Moinho'):'Praia')+' · '+Math.round((me.dir>0?TN-1-me.ti:me.ti)*TSTEP)+' m';
+  if(me.fin==null&&me.land){const p=TW(me.ti+6),dx=p.x-me.x,dz=p.z-me.z,need=cfg.mode==='both'?1:laps;el('nxt').textContent=(me.ll+1>=need?'Meta':'Fim da volta')+' · '+Math.round(Math.max(0,(me.ll+1)*TN+3-me.tp)*TSTEP)+' m';
     el('narrow').style.transform='rotate('+((Math.atan2(dx,-dz)-camYaw)*180/Math.PI).toFixed(1)+'deg)';el('next').hidden=false;}
   else if(me.fin==null){const t=tgt(me),dx=t.x-me.x,dz=t.z-me.z,last=me.mark===route(me.lap).length-1;el('nxt').textContent=(last?(me.lap+1>=laps?(cfg.mode==='both'?'Praia (troca para a mota)':'Chegada'):'Linha de volta'):'Boia '+LET[markId(me)])+' · '+Math.round(Math.hypot(dx,dz))+' m';
     el('narrow').style.transform='rotate('+((Math.atan2(dx,-dz)-camYaw)*180/Math.PI).toFixed(1)+'deg)';el('next').hidden=false;}else el('next').hidden=true;
@@ -519,11 +545,12 @@ function frame(now){
     else{b.twa=1;b.ideal=.4;b.eff=0;}
     visual(b,dt);}
   if(go)stepItems(dt);
+  stepFauna(dt);
   if(!reduce)for(let k=0;k<5;k++)emit(cam.position.x+(Math.random()-.5)*120,2+Math.random()*16,cam.position.z+(Math.random()-.5)*120,windTo.x*34*gust,0,windTo.z*34*gust,2.5,.22,2);
   stepParticles(dt);
   if(!me){renderer.render(scene,cam);return;}
   const cur=me.land?me.bike.position:me.outer.position;
-  if(me.land){const p=TRAIL[me.dir>0?TN-1:0];beacon.visible=me.fin==null;beacon.position.set(p.x,HM(p.x,p.z),p.z);}
+  if(me.land){const p=TRAIL[3];beacon.visible=me.fin==null&&me.tp>TN*.8;beacon.position.set(p.x,HM(p.x,p.z),p.z);}
   else{const nm=tgt(me),lastM=me.mark===route(me.lap).length-1;beacon.visible=me.fin==null&&(!lastM||cfg.mode==='both'&&me.lap===laps-1);beacon.position.set(nm.x,0,nm.z);}
   beacon.getObjectByName('arrow').position.y=24+Math.sin(T*3)*2;
   const mp=cur,f=me.fwd,L=me.land;let want,look;
@@ -542,5 +569,5 @@ function frame(now){
   netT-=dt;if(netT<=0&&!solo){netT=.066;if(isHost&&conns.length)bcast({t:'s',b:boats.filter(b=>!b.remote||b.seen).map(pack)});else if(hostConn&&hostConn.open)hostConn.send({t:'s',b:[pack(me)]});}
 }
 let T=0;showMenu('main');requestAnimationFrame(frame);
-window.__regata={get boats(){return boats;},get me(){return me;},sim(sec){for(let t=0;t<sec;t+=1/30){t0-=1000/30;raceT+=1/30;setWind(Math.max(0,raceT));if(raceT<0)continue;for(const b of boats)if(!b.remote)physics(b,1/30,b.fin!=null?0:b.bot?botCtl(b):0,0);stepItems(1/30);}}};
+window.__regata={t:()=>raceT,get boats(){return boats;},get me(){return me;},sim(sec){for(let t=0;t<sec;t+=1/30){t0-=1000/30;raceT+=1/30;setWind(Math.max(0,raceT));if(raceT<0)continue;for(const b of boats)if(!b.remote)physics(b,1/30,b.fin!=null?0:b.bot?botCtl(b):0,0);stepItems(1/30);stepFauna(0);}}};
 })();
