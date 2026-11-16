@@ -68,7 +68,7 @@ body.touch .pos{font-size:9px}
 .card p{margin:0;color:var(--muted);font-size:14px}
 .card label{font-size:13px;color:var(--muted);display:grid;gap:4px}
 .card input,.card select{font:500 16px var(--body);padding:10px 12px;border:1px solid var(--line);border-radius:10px;color:var(--fg);background:#fff;width:100%}
-.row{display:flex;gap:8px}.row>*{flex:1}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1}
 .btn{font:600 15px var(--body);padding:11px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--fg);cursor:pointer}
 .btn.pri{background:var(--sea);border-color:var(--sea);color:#fff}
 .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -88,7 +88,7 @@ td{padding:7px 6px;border-bottom:1px solid var(--line)}tr.me td{font-weight:700;
   <div id="labels"></div>
   <div id="hud" hidden>
     <div class="hud pos" id="rank"></div>
-    <div class="hud lap"><small>BAÍA DO FUNCHAL</small><b id="clock">VOLTA 1/2</b></div>
+    <div class="hud lap"><small id="locn">BAÍA DO FUNCHAL</small><b id="clock">VOLTA 1/2</b></div>
     <div class="hud wind" id="windw">
       <svg viewBox="-50 -50 100 100" aria-label="Direção do vento">
         <circle r="44" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2"/>
@@ -129,7 +129,7 @@ td{padding:7px 6px;border-bottom:1px solid var(--line)}tr.me td{font-weight:700;
       <button class="btn pri" id="bhost">Criar sala</button>
       <div class="row"><input id="jcode" maxlength="4" placeholder="Código" aria-label="Código da sala" style="text-transform:uppercase"><button class="btn" id="bjoin">Entrar</button></div>
       <div class="sep">ou</div>
-      <div class="row"><label>Tipo de corrida<select id="smode"><option value="sea">Só mar</option><option value="both">Mar + terra</option><option value="land">Só terra</option><option value="hide">Escondidas</option></select></label><label>Na água<select id="sveh"><option value="sail">Veleiro</option><option value="jet">Mota de água</option><option value="boat">Lancha</option></select></label><label>Em terra<select id="slveh"><option value="bike">Mota</option><option value="buggy">Buggy</option></select></label></div>
+      <div class="row"><label>Pista<select id="strack"><option value="funchal">Baía do Funchal</option><option value="tejo">Rio Tejo</option><option value="douro">Rio Douro</option></select></label><label>Tipo de corrida<select id="smode"><option value="sea">Só mar</option><option value="both">Mar + terra</option><option value="land">Só terra</option><option value="hide">Escondidas</option></select></label><label>Na água<select id="sveh"><option value="sail">Veleiro</option><option value="jet">Mota de água</option><option value="boat">Lancha</option></select></label><label>Em terra<select id="slveh"><option value="bike">Mota</option><option value="buggy">Buggy</option></select></label></div>
       <button class="btn" id="bsolo">Treinar contra bots</button>
       <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="sitems" checked style="width:auto">Caixas com objetos (turbo, balões, algas)</label>
       <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="sfauna" checked style="width:auto">Animais marinhos (tubarões, baleia, mosassauro)</label>
@@ -145,7 +145,7 @@ td{padding:7px 6px;border-bottom:1px solid var(--line)}tr.me td{font-weight:700;
       <p id="rcount"></p>
       <ul id="rlist"></ul>
       <div id="rhost" class="card" style="padding:0;box-shadow:none">
-        <div class="row"><label>Tipo de corrida<select id="rmode"><option value="sea">Só mar</option><option value="both">Mar + terra</option><option value="land">Só terra</option><option value="hide">Escondidas</option></select></label><label>Na água<select id="rveh"><option value="sail">Veleiro</option><option value="jet">Mota de água</option><option value="boat">Lancha</option></select></label><label>Em terra<select id="rlveh"><option value="bike">Mota</option><option value="buggy">Buggy</option></select></label></div>
+        <div class="row"><label>Pista<select id="rtrack"><option value="funchal">Baía do Funchal</option><option value="tejo">Rio Tejo</option><option value="douro">Rio Douro</option></select></label><label>Tipo de corrida<select id="rmode"><option value="sea">Só mar</option><option value="both">Mar + terra</option><option value="land">Só terra</option><option value="hide">Escondidas</option></select></label><label>Na água<select id="rveh"><option value="sail">Veleiro</option><option value="jet">Mota de água</option><option value="boat">Lancha</option></select></label><label>Em terra<select id="rlveh"><option value="bike">Mota</option><option value="buggy">Buggy</option></select></label></div>
         <div class="row"><label>Voltas<select id="laps"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select></label>
         <label>Juntar bots (opcional)<select id="nboats"><option value="0" selected>Sem bots</option><option value="1">1 bot</option><option value="2">2 bots</option><option value="3">3 bots</option><option value="4">4 bots</option><option value="5">5 bots</option><option value="6">6 bots</option><option value="7">7 bots</option><option value="8">8 bots</option><option value="9">9 bots</option><option value="10">10 bots</option><option value="11">11 bots</option><option value="12">12 bots</option><option value="13">13 bots</option><option value="14">14 bots</option></select></label></div>
         <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="ritems" checked style="width:auto">Caixas com objetos (turbo, balões, algas)</label>
