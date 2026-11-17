@@ -52,7 +52,8 @@ html,body{margin:0;height:100%;overflow:hidden;background:#9cc3d8;font-family:va
 #cd{position:absolute;top:30%;left:50%;transform:translate(-50%,-50%);font:800 clamp(60px,12vw,150px) var(--display);text-shadow:0 6px 30px rgba(0,0,0,.5);pointer-events:none}
 #toast{position:absolute;top:22%;left:50%;transform:translate(-50%,0);font:700 clamp(16px,2.2vw,26px) var(--display);background:rgba(6,18,28,.7);padding:.3em .9em;border-radius:10px;opacity:0;transition:opacity .3s;pointer-events:none}
 #toast.on{opacity:1}
-.keys{position:absolute;bottom:62px;left:50%;transform:translateX(-50%);font:500 11px var(--mono);opacity:.75;white-space:nowrap;text-shadow:0 1px 3px #000}
+.keys{position:absolute;bottom:62px;left:50%;transform:translateX(-50%);font:500 11px var(--mono);opacity:.75;width:max-content;max-width:calc(100% - 540px);text-align:center;line-height:1.5;text-shadow:0 1px 3px #000}
+@media(max-width:820px){.keys{display:none}}
 .nm{position:absolute;font:700 12px var(--mono);background:rgba(6,18,28,.78);padding:2px 7px;border-radius:4px;transform:translate(-50%,-100%);white-space:nowrap;pointer-events:none}
 .nm.me{background:#ffd23f;color:#08263a}
 .tc{display:none}
@@ -226,6 +227,6 @@ td{padding:7px 6px;border-bottom:1px solid var(--line)}tr.me td{font-weight:700;
 <script src="lib/post.js"></script>
 <script src="lib/Sky.js"></script>
 <script src="lib/peerjs.min.js"></script>
-<script src="game.js?v=11"></script>
+<script src="game.js?v=13"></script>
 </body>
 </html>
