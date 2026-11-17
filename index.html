@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Regata do Funchal</title>
+<title>Regata</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" media="print" onload="this.media='all'">
 <style>
 :root{--fg:#14202a;--muted:#536370;--line:#d4dde3;--accent:#c4502a;--sea:#11708f;--surface:#fff;
@@ -11,7 +11,8 @@
 *{box-sizing:border-box}[hidden]{display:none!important}
 html,body{margin:0;height:100%;overflow:hidden;background:#9cc3d8;font-family:var(--body);color:#fff;touch-action:none}
 #scr{position:fixed;inset:0}
-#cv{position:absolute;inset:0;width:100%;height:100%;display:block}
+#cv{position:absolute;inset:0;width:100%;height:100%;display:block;filter:contrast(1.06) saturate(1.12)}
+#scr::after{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,transparent 55%,rgba(4,14,24,.38) 100%)}
 .hud{position:absolute;font-family:var(--mono);background:rgba(6,18,28,.6);border:1px solid rgba(255,255,255,.12);border-radius:10px;backdrop-filter:blur(6px);font-size:clamp(10px,1.1vw,13px)}
 .pos{top:12px;left:12px;padding:.7em .9em;display:grid;gap:.35em;min-width:14em}
 .pos .r{display:grid;grid-template-columns:2em .9em 1fr auto;gap:.6em;align-items:center}
@@ -64,6 +65,22 @@ body.touch #map{bottom:auto;top:110px;width:140px}
 body.touch .pos{font-size:9px}
 .panel{position:absolute;inset:0;display:grid;place-items:center;padding:16px;background:rgba(8,22,32,.35)}
 .card{background:var(--surface);color:var(--fg);border-radius:16px;padding:24px;width:min(440px,100%);box-shadow:0 20px 60px rgba(0,0,0,.35);display:grid;gap:14px;max-height:100%;overflow:auto}
+.card.home{width:min(900px,100%);background:linear-gradient(160deg,#0d2a3a,#0a1c28);color:#eef5f8;border:1px solid rgba(255,255,255,.12);gap:16px}
+.card.home p,.card.home label{color:#a9bcc7}.card.home h1{font-size:40px;letter-spacing:-.02em}.card.home .code{color:#5fd0ff}
+.card.home input,.card.home select{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18);color:#fff}.card.home select option{color:#14202a}
+.card.home .btn{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff}.card.home .btn.pri{background:linear-gradient(135deg,#18a0c8,#1273b5);border-color:transparent}
+.card.home #rlist li{border-color:rgba(255,255,255,.18)}
+.hh{display:flex;gap:16px;justify-content:space-between;align-items:flex-end;flex-wrap:wrap}.hh>*{flex:1 1 220px}
+.games{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.gc{position:relative;text-align:left;border:2px solid transparent;border-radius:14px;padding:14px 14px 12px;color:#fff;cursor:pointer;display:grid;gap:3px;min-height:112px;align-content:end;overflow:hidden;font-family:var(--body);transition:transform .15s,border-color .15s}
+.gc b{font:800 19px var(--display)}.gc small{font-size:12px;opacity:.88;line-height:1.3}.gc .gi{position:absolute;right:8px;top:2px;font-size:44px;opacity:.9}
+.gc:hover{transform:translateY(-2px)}.gc[aria-pressed="true"]{border-color:#ffd23f;box-shadow:0 0 0 3px rgba(255,210,63,.25)}.gc:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.g1{background:linear-gradient(140deg,#1489b8,#0b4f7c)}.g2{background:linear-gradient(140deg,#b9732f,#6e3d14)}.g3{background:linear-gradient(140deg,#1a9a8a,#7a5a20)}.g4{background:linear-gradient(140deg,#b23a8e,#5b2a86)}.g5{background:linear-gradient(140deg,#c79a3a,#7d5a1c)}.g6{background:linear-gradient(140deg,#8e2f3c,#4a1622)}
+.opts{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:end}.opts label{flex:1 1 150px}.opts [hidden]{display:none}.opts .chk{display:flex;gap:8px;align-items:center;flex:0 1 auto;padding-bottom:10px}.opts .chk input{width:auto}
+.play{display:grid;grid-template-columns:1fr 1fr;gap:12px}.pbox{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px;display:grid;gap:10px;align-content:start}.pbox b{font:700 15px var(--display)}
+details.help{padding-left:0}details.help summary{cursor:pointer;color:#a9bcc7}details.help ul{margin:8px 0 0;padding-left:18px;display:grid;gap:3px;color:#a9bcc7}
+@media (max-width:640px){.games{grid-template-columns:repeat(2,1fr)}.play{grid-template-columns:1fr}.gc{min-height:96px}.gc .gi{font-size:32px}.card.home{padding:16px}}
+@media (prefers-reduced-motion:reduce){.gc{transition:none}}
 .card h1{font:800 32px/1.05 var(--display);margin:0}
 .card h2{font:800 22px var(--display);margin:0}
 .card p{margin:0;color:var(--muted);font-size:14px}
@@ -123,39 +140,48 @@ td{padding:7px 6px;border-bottom:1px solid var(--line)}tr.me td{font-weight:700;
   </div>
 
   <div class="panel" id="menu">
-    <div class="card" id="m-main">
-      <h1>Regata do Funchal</h1>
-      <p>Corridas na Baía do Funchal para 2 a 15 jogadores: de veleiro, mota de água ou lancha, e de mota de motocross ou buggy pela encosta, com rampas, até ao moinho. Segue a seta e a boia assinalada. De veleiro, contra o vento não andas: tens de bolinar em zigue-zague.</p>
-      <label>O teu nome<input id="name" maxlength="14" autocomplete="nickname" placeholder="Jogador"></label>
-      <button class="btn pri" id="bhost">Criar sala</button>
-      <div class="row"><input id="jcode" maxlength="4" placeholder="Código" aria-label="Código da sala" style="text-transform:uppercase"><button class="btn" id="bjoin">Entrar</button></div>
-      <div class="sep">ou</div>
-      <div class="row"><label>Pista<select id="strack"><option value="funchal">Baía do Funchal</option><option value="tejo">Rio Tejo</option><option value="douro">Rio Douro</option></select></label><label>Tipo de corrida<select id="smode"><option value="sea">Só mar</option><option value="both">Mar + terra</option><option value="land">Só terra</option><option value="hide">Escondidas</option></select></label><label>Na água<select id="sveh"><option value="sail">Veleiro</option><option value="jet">Mota de água</option><option value="boat">Lancha</option></select></label><label>Em terra<select id="slveh"><option value="bike">Mota</option><option value="buggy">Buggy</option></select></label></div>
-      <button class="btn" id="bsolo">Treinar contra bots</button>
-      <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="sitems" checked style="width:auto">Caixas com objetos (turbo, balões, algas)</label>
-      <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="sfauna" checked style="width:auto">Animais marinhos (tubarões, baleia, mosassauro)</label>
-      <div class="row"><select id="sboats" aria-label="Número de bots"><option value="1">1 bot</option><option value="2">2 bots</option><option value="3" selected>3 bots</option><option value="4">4 bots</option><option value="5">5 bots</option><option value="6">6 bots</option><option value="7">7 bots</option><option value="8">8 bots</option><option value="9">9 bots</option><option value="10">10 bots</option><option value="11">11 bots</option><option value="12">12 bots</option><option value="13">13 bots</option><option value="14">14 bots</option></select><select id="slaps" aria-label="Voltas"><option value="1">1 volta</option><option value="2" selected>2 voltas</option><option value="3">3 voltas</option></select></div>
-      <ul class="help"><li>Virar: A/D ou setas ←/→</li><li>Veleiro: W caça a vela, S folga. Segue a dica junto à velocidade</li><li>Motas, buggy e lancha: W acelera, S trava. Em terra, Shift derrapa</li><li>Espaço ou E usa o objeto das caixas ?</li><li>Escondidas: anda a pé, Espaço abre as tintas para pintares o boneco à mão; o caçador tem de tocar nos outros</li><li>C muda a câmara · Esc ou P abre o menu</li></ul>
+    <div class="card home" id="m-main">
+      <header class="hh"><div><h1>Regata</h1><p>Seis jogos na Madeira, no Tejo e no Douro. Sozinho contra bots ou com amigos, até 15 jogadores.</p></div><label>O teu nome<input id="name" maxlength="14" autocomplete="nickname" placeholder="Jogador"></label></header>
+      <div id="gmain"><div id="gpick">
+        <div class="games">
+          <button type="button" class="gc g1" data-g="sea"><span class="gi">⛵</span><b>Mar</b><small>Regata às boias de veleiro, mota de água ou lancha</small></button>
+          <button type="button" class="gc g2" data-g="land"><span class="gi">🏍️</span><b>Terra</b><small>Pista de motocross com saltos, lama e mortais</small></button>
+          <button type="button" class="gc g3" data-g="both"><span class="gi">🌊</span><b>Mar e Terra</b><small>Voltas no mar e depois duas voltas à pista</small></button>
+          <button type="button" class="gc g4" data-g="hide"><span class="gi">🎨</span><b>Escondidas</b><small>Disfarça-te de parede ou de objeto e foge à tinta</small></button>
+          <button type="button" class="gc g5" data-g="cesto"><span class="gi">🧺</span><b>Carros de Cesto</b><small>A descida do Monte, sempre a abrir, a travar com os patins</small></button>
+          <button type="button" class="gc g6" data-g="rabelo"><span class="gi">🍷</span><b>Carga de Rabelos</b><small>Leva as pipas pelo Douro sem as deixar cair</small></button>
+        </div>
+        <select id="smode" hidden><option value="sea">sea</option><option value="land">land</option><option value="both">both</option><option value="hide">hide</option><option value="cesto">cesto</option><option value="rabelo">rabelo</option></select>
+        <div class="opts">
+          <label data-for="sea">Pista<select id="strack"><option value="funchal">Baía do Funchal</option><option value="tejo">Rio Tejo</option><option value="douro">Rio Douro</option></select></label>
+          <label data-for="sea both">Na água<select id="sveh"><option value="sail">Veleiro</option><option value="jet">Mota de água (com ondas)</option><option value="boat">Lancha</option></select></label>
+          <label data-for="land both">Em terra<select id="slveh"><option value="bike">Mota</option><option value="buggy">Buggy</option></select></label>
+          <label data-for="rabelo">Pipas a bordo<select id="spip"><option>2</option><option>4</option><option selected>6</option><option>8</option><option>10</option><option>12</option></select></label>
+          <label class="chk" data-for="sea both land"><input type="checkbox" id="sitems" checked>Caixas com objetos</label>
+          <label class="chk" data-for="sea both"><input type="checkbox" id="sfauna" checked>Animais marinhos</label>
+        </div>
+      </div></div>
+      <div class="play">
+        <div class="pbox"><b>Jogar já</b><div class="row"><select id="sboats" aria-label="Número de bots"><option value="1">1 bot</option><option value="2">2 bots</option><option value="3" selected>3 bots</option><option value="4">4 bots</option><option value="5">5 bots</option><option value="6">6 bots</option><option value="7">7 bots</option><option value="8">8 bots</option><option value="9">9 bots</option><option value="10">10 bots</option><option value="11">11 bots</option><option value="12">12 bots</option><option value="13">13 bots</option><option value="14">14 bots</option></select><select id="slaps" aria-label="Voltas"><option value="1">1 volta</option><option value="2" selected>2 voltas</option><option value="3">3 voltas</option></select></div><button class="btn pri" id="bsolo">Jogar contra bots</button></div>
+        <div class="pbox"><b>Com amigos</b><button class="btn pri" id="bhost">Criar sala</button><div class="row"><input id="jcode" maxlength="4" placeholder="Código" aria-label="Código da sala" style="text-transform:uppercase"><button class="btn" id="bjoin">Entrar</button></div></div>
+      </div>
       <p id="merr" role="status"></p>
+      <details class="help"><summary>Como se joga</summary><ul><li>Virar: A/D ou setas ←/→. C muda a câmara, Esc ou P abre o menu.</li><li>Veleiro: W caça a vela, S folga. Contra o vento não andas, tens de bolinar em zigue-zague.</li><li>Motas, buggy e lancha: W acelera, S trava. Em terra, Shift derrapa e no ar faz um mortal.</li><li>Espaço ou E usa o objeto das caixas.</li><li>Escondidas: V copia o fundo, F transforma-te num objeto ao acaso, Q muda a pose. O caçador dispara tinta com Espaço.</li><li>Carros de cesto: ← trava o patim esquerdo, → o direito, os dois juntos travam a fundo.</li><li>Rabelos: W iça a vela com vento pelas costas, S arria. Curvas bruscas fazem cair pipas.</li></ul></details>
     </div>
-    <div class="card" id="m-room" hidden>
-      <h2>Sala</h2>
-      <div class="code" id="rcode">----</div>
-      <div class="row"><input id="rlink" readonly aria-label="Link da sala"><button class="btn" id="bcopy" style="flex:0 0 auto">Copiar</button></div>
-      <p>Envia o código ou o link aos amigos.</p>
+    <div class="card home" id="m-room" hidden>
+      <header class="hh"><div><h2>Sala</h2><div class="code" id="rcode">----</div></div><div><div class="row"><input id="rlink" readonly aria-label="Link da sala"><button class="btn" id="bcopy" style="flex:0 0 auto">Copiar</button></div><p>Envia o código ou o link aos amigos.</p></div></header>
       <p id="rcount"></p>
       <ul id="rlist"></ul>
-      <div id="rhost" class="card" style="padding:0;box-shadow:none">
-        <div class="row"><label>Pista<select id="rtrack"><option value="funchal">Baía do Funchal</option><option value="tejo">Rio Tejo</option><option value="douro">Rio Douro</option></select></label><label>Tipo de corrida<select id="rmode"><option value="sea">Só mar</option><option value="both">Mar + terra</option><option value="land">Só terra</option><option value="hide">Escondidas</option></select></label><label>Na água<select id="rveh"><option value="sail">Veleiro</option><option value="jet">Mota de água</option><option value="boat">Lancha</option></select></label><label>Em terra<select id="rlveh"><option value="bike">Mota</option><option value="buggy">Buggy</option></select></label></div>
-        <div class="row"><label>Voltas<select id="laps"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select></label>
-        <label>Juntar bots (opcional)<select id="nboats"><option value="0" selected>Sem bots</option><option value="1">1 bot</option><option value="2">2 bots</option><option value="3">3 bots</option><option value="4">4 bots</option><option value="5">5 bots</option><option value="6">6 bots</option><option value="7">7 bots</option><option value="8">8 bots</option><option value="9">9 bots</option><option value="10">10 bots</option><option value="11">11 bots</option><option value="12">12 bots</option><option value="13">13 bots</option><option value="14">14 bots</option></select></label></div>
-        <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="ritems" checked style="width:auto">Caixas com objetos (turbo, balões, algas)</label>
-      <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="rfauna" checked style="width:auto">Animais marinhos (tubarões, baleia, mosassauro)</label>
-        <button class="btn pri" id="bstart">Começar corrida</button>
+      <div id="rhost">
+        <div id="gslot"></div>
+        <div class="row" style="margin-top:12px"><label>Voltas<select id="laps"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select></label>
+        <label>Juntar bots (opcional)<select id="nboats"><option value="0" selected>Sem bots</option><option value="1">1 bot</option><option value="2">2 bots</option><option value="3">3 bots</option><option value="4">4 bots</option><option value="5">5 bots</option><option value="6">6 bots</option><option value="7">7 bots</option><option value="8">8 bots</option><option value="9">9 bots</option><option value="10">10 bots</option><option value="11">11 bots</option><option value="12">12 bots</option><option value="13">13 bots</option></select></label></div>
+        <button class="btn pri" id="bstart" style="margin-top:12px;width:100%">Começar</button>
       </div>
-      <p id="rwait">À espera que o anfitrião comece a corrida…</p>
+      <p id="rwait">À espera que o anfitrião comece…</p>
       <button class="btn" id="bleave">Sair da sala</button>
     </div>
+  </div>
   </div>
 
   <div class="panel" id="pause" hidden>
@@ -182,8 +208,9 @@ td{padding:7px 6px;border-bottom:1px solid var(--line)}tr.me td{font-weight:700;
 
 <script src="lib/three.min.js"></script>
 <script src="lib/Water.js"></script>
+<script src="lib/post.js"></script>
 <script src="lib/Sky.js"></script>
 <script src="lib/peerjs.min.js"></script>
-<script src="game.js?v=4"></script>
+<script src="game.js?v=8"></script>
 </body>
 </html>

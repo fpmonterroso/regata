@@ -1,28 +1,30 @@
 # Regata do Funchal
 
-Corridas no browser para até 15 jogadores, na Baía do Funchal: de veleiro, mota de água ou lancha, e de mota de motocross pela encosta. Three.js r128 (Water e Sky), multijogador P2P com PeerJS. Tudo estático, sem servidor próprio.
+Jogos no browser para até 15 jogadores: regatas na Baía do Funchal, no Tejo e no Douro, motocross, escondidas, carros de cesto do Monte e carga de rabelos. Three.js r128 (Water e Sky), multijogador P2P com PeerJS. Tudo estático, sem servidor próprio.
 
 ## Jogar
 
-Tipos de corrida: **Só mar** (voltas às boias), **Mar + terra** (as voltas no mar acabam na praia, onde se troca para a mota ou o buggy e se dá uma volta ao circuito) e **Só terra** (voltas ao circuito de terra). Na água escolhe-se veleiro, mota de água ou lancha; todos os jogadores usam o mesmo. Em terra escolhe-se mota ou buggy; o circuito é fechado, com cerca de 5 km à volta da cidade e da serra, e tem rampas para saltar e caixas de objetos, e com Shift derrapa-se.
+O início tem uma caixa por jogo. Escolhe-se o jogo e as opções, e depois treina-se contra bots, cria-se uma sala ou entra-se numa com o código.
 
-- **Treinar contra bots**: começa logo, sozinho contra 1 a 14 bots.
-- **Criar sala**: dá um código de 4 letras e um link (`?sala=CÓDIGO`) para enviar aos amigos. Entram até 15 pessoas; o anfitrião escolhe as voltas e, se quiser, junta bots. Cada volta tem um percurso diferente (boias A a G).
-- **Entrar**: escreve o código e carrega em Entrar.
+- **Mar**: voltas às boias de veleiro, mota de água ou lancha, em três pistas: Baía do Funchal, Rio Tejo (Belém, ponte e Terreiro do Paço) e Rio Douro (da Ribeira à Foz e volta). As boias mudam de posição em cada corrida. Nos rios há corrente e, no Tejo, cacilheiros a atravessar. As motas de água apanham ondas: saltam nas cristas e ganham velocidade a descer.
+- **Terra**: circuito fechado de motocross, de mota ou buggy, com rampas, lombas, lama, placas de turbo e piruetas no ar (Shift) que dão turbo se a aterragem correr bem.
+- **Mar e Terra**: as voltas no mar acabam na praia, onde se troca para a mota ou o buggy.
+- **Escondidas**: a pé na cidade. Os escondidos copiam o fundo para o corpo (V), transformam-se num objeto ao acaso (F), mudam de pose (Q) ou pintam o boneco à mão (Espaço). Os caçadores têm uma arma de tinta para os descobrir. Quem é apanhado passa a caçar.
+- **Carros de Cesto**: descida longa e larga do Monte, só com a gravidade. Trava-se com o patim esquerdo ou direito para virar e derrapar; os patins aquecem e perdem aderência. Há pedras a evitar e faixas lisas que dão mais lanço.
+- **Carga de Rabelos**: corrida no Douro com 2 a 12 pipas. Mais pipas dão mais bónus no fim, mas o barco fica mais pesado, adorna mais e pode perder carga nas curvas.
 
-Objetos: há caixas "?" na água em cada perna. Dão turbo, vento de feição, um balão de água para atirar ao barco da frente ou algas para largar atrás. Usa-se com Espaço ou E (★ no telemóvel) e pode desligar-se no menu.
+Objetos: as caixas "?" dão ajudas conforme a posição. Quem vai à frente só recebe algas ou balões de água, quem vai no meio recebe balões ou escudo, e os últimos recebem turbo e vento de feição. Usa-se com Espaço ou E (★ no telemóvel).
 
-**Escondidas**: modo a pé numa zona da cidade. Um jogador é o caçador e fica 40 segundos sem ver; os outros escondem-se e pintam o boneco à mão (Espaço abre as tintas: tela do boneco, pincel em três grossuras, paleta de 26 cores, "encher tudo" e a cor do sítio). A pintura é enviada aos outros jogadores. Pela zona há caixotes, canteiros, tendas e muros de cores vivas para imitar. Depois o caçador tem 2 minutos e meio para lhes tocar. Quem é apanhado passa a caçar também. Ganham os escondidos se sobrar algum no fim.
+Animais marinhos (opcional): tubarões, uma baleia e um mosassauro. Quem lhes toca fica a rodar uns segundos.
 
-Animais marinhos (opcional): tubarões em patrulha, uma baleia que vem à superfície e um mosassauro que salta da água depois de um aviso de bolhas. Quem lhes toca fica a rodar uns segundos. Aparecem a vermelho no mapa.
+Controlos: A/D ou ←/→ para virar, W/S ou ↑/↓ para caçar/folgar a vela ou acelerar/travar, C para mudar a câmara, Esc ou P para o menu. Em telemóvel aparecem botões no ecrã.
 
-Controlos: A/D ou ←/→ para o leme, W/S ou ↑/↓ para caçar/folgar a vela, C para mudar a câmara, Esc ou P (ou o botão ❚❚) para o menu: pausa, recomeçar, voltar à sala ou ao início. Em telemóvel aparecem botões no ecrã.
-
-A velocidade depende do ângulo ao vento (curva polar) e da afinação da vela. Contra o vento (menos de ~35°) o barco quase para, por isso a primeira perna, até à boia 1, faz-se em bolina, em zigue-zague.
+Salas: até 15 jogadores, com código de 4 letras ou link (`?sala=CÓDIGO`). O anfitrião escolhe o jogo e pode juntar bots.
 
 ## Opções no URL
 
-- `?q=low`: gráficos leves (sem sombras, reflexos com menos resolução). Liga-se sozinho em telemóveis.
+- `?q=low`: gráficos leves (sem sombras nem bloom, reflexos com menos resolução). Liga-se sozinho em telemóveis.
+- `?bloom=0`: desliga só o bloom.
 - `?peer=host:porta`: usa um servidor PeerJS próprio em vez do servidor público gratuito.
 
 ## Publicar no GitHub Pages
@@ -33,4 +35,4 @@ Settings → Pages → Source: *Deploy from a branch* → `main` / `(root)`. O j
 
 - `index.html`: interface, HUD e menus
 - `game.js`: cena, pista, física dos barcos, bots, rede
-- `lib/`: Three.js r128, Water.js, Sky.js e PeerJS 1.5.4 (copiados para não depender de CDNs)
+- `lib/`: Three.js r128, Water.js, Sky.js, post.js (EffectComposer e bloom do r128) e PeerJS 1.5.4 (copiados para não depender de CDNs)
