@@ -468,9 +468,9 @@ let COL=[];const addSeg=(cx,cz,len,ang,r)=>{const dx=Math.cos(ang),dz=-Math.sin(
 const blocked=(x,z)=>H(x,z)>-1.5||COL.some(c=>(x-c[0])**2+(z-c[1])**2<c[2]*c[2]);const COLF=COL;
 
 // percurso: 3 boias e a linha de partida/chegada
-let MARKS=[V(420,0,-60),V(-250,0,-80),V(-300,0,300),V(700,0,150),V(250,0,550),V(-650,0,150),V(-50,0,-150)],GATE=V(60,0,260),FIN=null;const R_MARK=28,LET='ABCDEFG';
+let MARKS=[V(420,0,-60),V(-250,0,-80),V(-300,0,300),V(700,0,150),V(250,0,550),V(-650,0,150),V(-50,0,-150),V(480,0,380),V(-480,0,-20)],GATE=V(60,0,260),FIN=null;const R_MARK=28,LET='ABCDEFGHI';
 // cada volta tem o seu percurso; todas acabam na linha de partida/chegada
-let LAPS=[[0,1,2],[3,4,5],[6,0,4]],LAPNAME=['Baía','Volta larga','Junto à cidade'];
+let LAPS=[[0,1,2],[3,4,5],[6,7,8]],LAPNAME=['Baía','Volta larga','Junto à cidade'];
 const LANDPT=V(520,0,zsF(520)+24);
 const route=l=>[...LAPS[l%LAPS.length].map(i=>MARKS[i]),cfg.mode==='both'&&l===laps-1?LANDPT:FIN||GATE],tgt=b=>route(b.lap)[Math.min(b.mark,route(b.lap).length-1)],markId=b=>LAPS[b.lap%LAPS.length][b.mark];
 const numTex=n=>canvasTex(128,128,g=>{g.fillStyle='rgba(6,18,28,.75)';g.beginPath();g.arc(64,64,58,0,7);g.fill();g.fillStyle='#fff';g.font='bold 80px Arial';g.textAlign='center';g.textBaseline='middle';g.fillText(n,64,68);});
@@ -654,8 +654,12 @@ function landPhysics(b,dt,rud,inp,drift){
   const bg=cfg.lveh==='buggy';let top=(on?(bg?31:34):(bg?21:13))*b.skill*(1-clamp(grade*.9,-.15,.45)),acc=thr>0?1.1:thr<0?2.5:.5,target=thr>0?top:0;
   const mud=on&&b.ti>=MUD[0]&&b.ti<=MUD[1];b.mud=mud;if(mud)top*=.62;if(mud&&thr>0)target=top;
   if(on&&!b.air&&PADS.includes(b.ti)&&b.fin==null){if(!(b.boost>.9)&&b===me)toast('Turbo!',1);b.boost=1.3;}
-  if(b.air&&!b.bot&&inFlip())b.flip=Math.min(TAU,(b.flip||0)+dt*7.5);
-  else if(!b.air&&b.flip){if(b.flip>5.3){b.boost=1.6;if(b===me)toast('Mortal completo! Turbo',1.5);}else if(b.flip>1.2){b.stun=.9;if(b===me)toast('Caíste do mortal!',1.5);}b.flip=0;}
+  // mortal: carrega-se uma vez no ar e a mota roda sozinha ao ritmo que o salto dá; só cai quem começa tarde de mais
+  if(b.air&&!b.wasAir&&b.bot)b.flipBot=window.__flipAll||Math.random()<.35;b.wasAir=b.air;
+  if(b.air&&(b.bot?b.flipBot:inFlip())&&!b.flR&&!(b.flip>0)){b.flipBot=false;const gy=GY(b.x,b.z),vy=b.vy||0,t=(vy+Math.sqrt(Math.max(0,vy*vy+64*Math.max(0,b.y-gy))))/32;
+    if(t<.38){if(b===me&&!(raceT<b.flT)){b.flT=raceT+1;toast('Salto curto de mais para um mortal',1);}}else{b.flR=clamp(TAU/(t*.72),5,17);b.flip=.01;}}
+  if(b.air&&b.flR)b.flip=Math.min(TAU,b.flip+dt*b.flR);
+  else if(!b.air&&(b.flip||b.flR)){const f=b.flip||0;if(f>TAU-1){b.boost=1.6;if(b===me)toast('Mortal completo! Turbo',1.5);}else if(f>TAU-1.7){b.v*=.8;if(b===me)toast('Aterragem dura',1);}else if(f>.7){b.stun=.7;b.v*=.6;if(b===me)toast('Começaste o mortal tarde de mais e caíste',1.5);}b.flip=0;b.flR=0;}
   if(b.boost>0||b.fav>0){target=Math.max(target,on?44:20);acc=2.5;}
   if(b.stun>0){target=2;acc=3;rud=0;b.hd+=7*dt;}
   b.rudIn=rud;const dr=drift&&b.v>8&&!b.air,slip=angDiff(b.hd,b.va);b.slip=slip;b.dr=dr;
@@ -811,10 +815,12 @@ function setTrack(k){if(!TRK[k])k='funchal';if(k===trk)return;TK.world.visible=f
   sunDir.setFromSphericalCoords(1,deg(T.sun[0]),deg(T.sun[1]));su.sunPosition.value.copy(sunDir);water.material.uniforms.sunDirection.value.copy(sunDir);water.material.uniforms.waterColor.value.copy(lin(T.wc));
   if(envRT)envRT.dispose();envRT=pmrem.fromScene(sky);scene.environment=envRT.texture;scene.fog.color.set(T.fog[0]);scene.fog.density=2/T.fog[2];water.material.uniforms.flow.value.set(T.flow?T.flow[0]:0,T.flow?T.flow[1]:0);seaBoxes();setWaveDir(Math.atan2(Math.sin(T.W0),-Math.cos(T.W0)));}
 function shuffleMarks(seed){let q=(seed>>>0)||1;const r=()=>{q=(q*16807)%2147483647;return q/2147483647;},T=TK;if(!T.M0)T.M0=T.MARKS.map(p=>p.clone());
-  if(T===TRK.funchal){const o=[0,1,2,3,4,5,6];for(let i=6;i>0;i--){const j=Math.floor(r()*(i+1));[o[i],o[j]]=[o[j],o[i]];}[[o[0],o[1],o[2]],[o[3],o[4],o[5]],[o[6],o[1],o[4]]].forEach((l,i)=>{T.LAPS[i].splice(0,3,...l);T.LAPNAME[i]='boias '+l.map(k=>LET[k]).join(', ');});}
-  else if(T===TRK.tejo){const rev=r()<.5,l=T.LAPS[0];if(rev!==(l[0]===4))l.reverse();}
+  // as letras seguem sempre a ordem do percurso (A primeiro); o que muda é onde fica cada boia
+  let base=T.M0.map(p=>p.clone());
+  if(T===TRK.funchal){const o=[0,1,2,3,4,5,6,7,8];for(let i=8;i>0;i--){const j=Math.floor(r()*(i+1));[o[i],o[j]]=[o[j],o[i]];}base=o.map(k=>T.M0[k].clone());[[0,1,2],[3,4,5],[6,7,8]].forEach((l,i)=>{T.LAPS[i]=l.slice();T.LAPNAME[i]='boias '+l.map(k=>LET[k]).join(', ');});}
+  else if(T===TRK.tejo){T.LAPS[0]=[0,1,2,3,4];if(r()<.5)base=base.map((p,i)=>T.M0[4-i].clone());}
   const ok=(x,z)=>{if(blocked(x,z))return false;for(let a=0;a<8;a++)if(blocked(x+Math.cos(a*.785)*(T.clear||50),z+Math.sin(a*.785)*(T.clear||50)))return false;return true;};
-  T.MARKS.forEach((p,i)=>{const b=T.M0[i];p.copy(b);for(let k=0;k<30;k++){let x,z;if(T.jit)[x,z]=T.jit(b,r);else{x=b.x+(r()*2-1)*(T.J||150);z=b.z+(r()*2-1)*(T.J||150);}
+  T.MARKS.forEach((p,i)=>{const b=base[i];p.copy(b);for(let k=0;k<30;k++){let x,z;if(T.jit)[x,z]=T.jit(b,r);else{x=b.x+(r()*2-1)*(T.J||150);z=b.z+(r()*2-1)*(T.J||150);}
       if(ok(x,z)&&Math.hypot(x-T.GATE.x,z-T.GATE.z)>(T.sep||170)&&T.MARKS.every((o,j)=>j>=i||Math.hypot(x-o.x,z-o.z)>(T.sep||170))){p.set(x,0,z);break;}}T.markObjs[i].position.x=p.x;T.markObjs[i].position.z=p.z;});seaBoxes();}
 function stepMov(t){for(const m of TK.mov){TK.movAt(m,t);m.g.position.set(m.x,Math.sin(t*1.2+m.ph)*.25,m.z);m.g.rotation.y=m.ry;}}
 
@@ -1110,9 +1116,9 @@ function clientData(d){
   else if(d.t==='start')startRace(d.players,d.laps,d.items,d.mode,d.veh,d.lveh,d.fauna,d.sk,d.trk,d.pip,d.seed);
   else if(d.t==='s')applyStates(d.b);
   else if(d.t==='ev')onEv(d.e);}
-const pack=b=>[b.id,+b.x.toFixed(1),+b.z.toFixed(1),+b.hd.toFixed(3),+b.v.toFixed(2),+b.s.toFixed(2),b.mark,b.lap,b.fin,b.land,b.ti,b.tp,b.col,b.role,b.form|0,b.pose|0,b.pipas|0,b.hp==null?3:b.hp,b.sunk>0?+b.sunk.toFixed(1):0,b.blk>0?1:0,b.side|0];
+const pack=b=>[b.id,+b.x.toFixed(1),+b.z.toFixed(1),+b.hd.toFixed(3),+b.v.toFixed(2),+b.s.toFixed(2),b.mark,b.lap,b.fin,b.land,b.ti,b.tp,b.col,b.role,b.form|0,b.pose|0,b.pipas|0,b.hp==null?3:b.hp,b.sunk>0?+b.sunk.toFixed(1):0,b.blk>0?1:0,b.side|0,b.flip>0?+b.flip.toFixed(2):0];
 function applyStates(arr){if(!racing)return;for(const p of arr){if(p[0]===myId)continue;const b=boats.find(x=>x.id===p[0]);if(!b||!b.remote)continue;
-  const wl=b.land,wr=b.role;[,b.tx,b.tz,b.thd,b.v,b.s,b.mark,b.lap,b.fin,b.land,b.ti,b.tp,b.col,b.role,b.form,b.pose,b.pipas,b.hp,b.sunk,b.blk]=p;if(b.sailM&&(p[20]|0)!==b.side)setSide(b,p[20]|0);if(b.foot&&b.role&&!wr&&b.seen)toast(b.name+' foi apanhado!',2);if(!b.seen||b.land&&!wl){b.x=b.tx;b.z=b.tz;b.hd=b.thd;b.seen=true;}}}
+  const wl=b.land,wr=b.role;[,b.tx,b.tz,b.thd,b.v,b.s,b.mark,b.lap,b.fin,b.land,b.ti,b.tp,b.col,b.role,b.form,b.pose,b.pipas,b.hp,b.sunk,b.blk]=p;if(b.sailM&&(p[20]|0)!==b.side)setSide(b,p[20]|0);b.flip=+p[21]||0;if(b.foot&&b.role&&!wr&&b.seen)toast(b.name+' foi apanhado!',2);if(!b.seen||b.land&&!wl){b.x=b.tx;b.z=b.tz;b.hd=b.thd;b.seen=true;}}}
 
 /* ---------- menus ---------- */
 function showMenu(w){$('menu').hidden=false;$('results').hidden=true;['main','room'].forEach(s=>$('m-'+s).hidden=s!==w);(w==='room'?$('gslot'):$('gmain')).appendChild($('gpick'));}
@@ -1198,7 +1204,7 @@ function hud(look){const el=x=>$(x);
   if(me.land===2){$('islot').textContent=me.rocks>0?'🪨':'';$('iname').textContent='Pedras '+(me.rocks|0)+'/3';}
   const sail=cfg.veh==='sail'&&!me.land;$('windw').hidden=!!me.land;$('efl').textContent=sail?'EFICIÊNCIA DA VELA':'VELOCIDADE';$('keys').textContent=cfg.veh==='ship'&&!me.land?'A/D ou ←/→ leme · W iça as velas · S arria · Q dispara a bombordo (esquerda) · E a estibordo (direita) · Shift defende · Espaço objeto · C câmara':me.land===2?'A ou ← trava o patim esquerdo (vira à esquerda) · D ou → o direito · os dois juntos travam a fundo · Espaço atira uma pedra · C câmara':cfg.veh==='rabelo'&&!me.land?'A/D ou ←/→ espadela · W iça a vela · S arria · abalroa os outros para lhes roubar pipas · apanha as que boiam · Espaço objeto · C câmara':sail?'A/D ou ←/→ leme · W/S ou ↑/↓ caçar/folgar a vela · Espaço objeto · C câmara · Esc menu':'A/D ou ←/→ virar · W ou ↑ acelerar · S ou ↓ travar'+(me.land?' · Shift derrapar · F mortal no ar':'')+' · Espaço objeto · C câmara · Esc menu';document.body.classList.toggle('land',!!me.land);
   if(!sail){el('kn').firstChild.nodeValue=me.land?Math.round(me.v*3.6)+' ':(me.v*1.6).toFixed(0)+' ';el('knu').textContent=me.land?'km/h':'nós';el('effb').style.width=Math.round(clamp(me.land?me.v/34:me.eff,0,1)*100)+'%';}else el('knu').textContent='nós';
-  let tip='';if(cfg.veh==='ship'&&!me.land)tip=me.sunk>0?'A reparar o casco: '+Math.ceil(me.sunk)+' s':'♥'.repeat(me.hp==null?3:me.hp)+' · Bombordo '+(me.cdL>0?'○':'●')+' · Estibordo '+(me.cdR>0?'○':'●')+' · Defesa '+(me.blk>0?'ativa':me.blkCd>0?'○':'●');else if(me.land===2)tip=me.hL>.55||me.hR>.55?'Patins a escaldar: travam menos':me.fast?'Faixa rápida!':me.dr?'A derrapar!':'';else if(cfg.veh==='rabelo'&&!me.land)tip=me.twa>1.15&&me.s<.8?'Vento pelas costas: iça a vela (W)':me.twa<1.05&&me.s>.2?'Vento contra: arria a vela (S)':me.pipas+' pipas a bordo: curvas suaves';else if(!sail)tip=me.land&&!me.on?'Fora da pista!':me.land&&me.mud?'Lama: pouca aderência':me.land&&me.dr?'A derrapar!':me.land&&me.air?'No ar: F faz um mortal':'';else if(me.twa<.61)tip='Estás contra o vento: vira para um dos lados';else if(me.s>me.ideal+.1)tip='Caça a vela (W ou ↑)';else if(me.s<me.ideal-.1)tip='Folga a vela (S ou ↓)';else tip='Vela bem afinada';el('tip').textContent=tip;el('tip').className=tip==='Vela bem afinada'?'ok':'';
+  let tip='';if(cfg.veh==='ship'&&!me.land)tip=me.sunk>0?'A reparar o casco: '+Math.ceil(me.sunk)+' s':'♥'.repeat(me.hp==null?3:me.hp)+' · Bombordo '+(me.cdL>0?'○':'●')+' · Estibordo '+(me.cdR>0?'○':'●')+' · Defesa '+(me.blk>0?'ativa':me.blkCd>0?'○':'●');else if(me.land===2)tip=me.hL>.55||me.hR>.55?'Patins a escaldar: travam menos':me.fast?'Faixa rápida!':me.dr?'A derrapar!':'';else if(cfg.veh==='rabelo'&&!me.land)tip=me.twa>1.15&&me.s<.8?'Vento pelas costas: iça a vela (W)':me.twa<1.05&&me.s>.2?'Vento contra: arria a vela (S)':me.pipas+' pipas a bordo: curvas suaves';else if(!sail)tip=me.land&&!me.on?'Fora da pista!':me.land&&me.mud?'Lama: pouca aderência':me.land&&me.dr?'A derrapar!':me.land&&me.air?'No ar: carrega F cedo e o mortal sai sozinho':'';else if(me.twa<.61)tip='Estás contra o vento: vira para um dos lados';else if(me.s>me.ideal+.1)tip='Caça a vela (W ou ↑)';else if(me.s<me.ideal-.1)tip='Folga a vela (S ou ↓)';else tip='Vela bem afinada';el('tip').textContent=tip;el('tip').className=tip==='Vela bem afinada'?'ok':'';
   if(me.fin==null&&me.land===2){const p=CS[Math.min(CN-1,me.ti+6)],dx=p.x-me.x,dz=p.z-me.z;el('nxt').textContent='Meta · '+Math.round(Math.max(0,CN-6-me.ti)*CSTEP)+' m';el('narrow').style.transform='rotate('+((Math.atan2(dx,-dz)-camYaw)*180/Math.PI).toFixed(1)+'deg)';el('next').hidden=false;}
   else if(me.fin==null&&me.land){const p=TW(me.ti+6),dx=p.x-me.x,dz=p.z-me.z,need=cfg.mode==='both'?2:laps;el('nxt').textContent=(me.ll+1>=need?'Meta':'Fim da volta')+' · '+Math.round(Math.max(0,(me.ll+1)*TN+3-me.tp)*TSTEP)+' m';
     el('narrow').style.transform='rotate('+((Math.atan2(dx,-dz)-camYaw)*180/Math.PI).toFixed(1)+'deg)';el('next').hidden=false;}
