@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Bombas no escritório</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" media="print" onload="this.media='all'">
+<style>
+:root{--fg:#14202a;--muted:#536370;--line:#d4dde3;--accent:#c4502a;--display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;--body:"Inter",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html,body{margin:0;height:100%;overflow:hidden;background:#d9dde0;font-family:var(--body);color:#fff;touch-action:none}
+#scr{position:fixed;inset:0}#cv{position:absolute;inset:0;width:100%;height:100%;display:block}
+#scr::after{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,transparent 60%,rgba(10,14,20,.35) 100%)}
+#labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.lb{position:absolute;left:0;top:0;font:600 11px var(--body);background:rgba(10,16,24,.6);padding:2px 7px;border-radius:8px;border-left:3px solid;white-space:nowrap}
+.hud{position:absolute;font-family:var(--mono);background:rgba(10,16,24,.6);border:1px solid rgba(255,255,255,.12);border-radius:10px;backdrop-filter:blur(6px);font-size:clamp(10px,1.1vw,13px)}
+#board{top:12px;left:12px;padding:.6em .8em;display:grid;gap:.3em;min-width:13em}
+#board .out{opacity:.45}#board .r{display:grid;grid-template-columns:.9em 1fr auto;gap:.5em;align-items:center}
+#board .me{background:rgba(255,255,255,.16);border-radius:6px;margin:0 -.4em;padding:.1em .4em}
+.dot{display:inline-block;width:.8em;height:.8em;border-radius:50%;margin-right:.4em;vertical-align:-.05em}#board .dot{margin:0}
+.gap{opacity:.75;font-variant-numeric:tabular-nums}
+#status{top:12px;left:50%;transform:translateX(-50%);text-align:center;padding:.45em 1.3em}#status b{display:block;font-size:1.3em}#status small{opacity:.75;letter-spacing:.06em}
+#meter{bottom:16px;left:50%;transform:translateX(-50%);padding:.5em .9em;display:flex;gap:.8em;align-items:center}
+#meter .bar{width:9em;height:.55em;border-radius:4px;background:rgba(255,255,255,.18);overflow:hidden}#boostbar{height:100%;background:linear-gradient(90deg,#4ac6ff,#ffd23f);width:100%}
+#hp{bottom:62px;left:50%;transform:translateX(-50%);padding:.3em .9em;font-size:18px;color:#ff4d6d;letter-spacing:.15em}#hp .off{opacity:.25}#hp span:not(.off){font:600 13px var(--body);color:#fff;letter-spacing:0}
+#cross{position:absolute;left:50%;top:44%;width:22px;height:22px;margin:-11px;border:2px solid rgba(255,255,255,.75);border-radius:50%;pointer-events:none}
+#cross::after{content:'';position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px;background:#fff;border-radius:50%}
+#count{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);font:800 clamp(64px,12vw,140px) var(--display);text-shadow:0 6px 30px rgba(0,0,0,.4);pointer-events:none}
+#toast{position:absolute;left:50%;top:22%;transform:translateX(-50%);font:600 clamp(14px,1.8vw,20px) var(--body);background:rgba(10,16,24,.7);padding:.5em 1em;border-radius:10px;opacity:0;transition:opacity .2s;pointer-events:none;text-align:center}#toast.on{opacity:1}
+#flash{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 40%,rgba(255,40,60,.5));opacity:0}#flash.on{animation:fl .5s}
+@keyframes fl{from{opacity:1}to{opacity:0}}
+#bpause{top:12px;right:12px;width:44px;height:44px;color:#fff;font-size:15px;cursor:pointer;padding:0}
+#keys{bottom:16px;right:12px;padding:.5em .8em;font-size:11px;opacity:.85;line-height:1.6}
+#tc{position:absolute;inset:auto 0 0 0;display:none;justify-content:space-between;padding:12px;pointer-events:none}
+@media (pointer:coarse){#tc{display:flex}#keys{display:none}}
+#tc div{display:grid;grid-template-columns:repeat(3,56px);gap:6px;pointer-events:auto}
+#tc button{height:56px;border-radius:12px;border:1px solid rgba(255,255,255,.3);background:rgba(10,16,24,.45);color:#fff;font:700 18px var(--body)}
+
+.panel{position:fixed;inset:0;display:grid;place-items:center;padding:16px;background:rgba(20,26,34,.35);overflow:auto}
+.card{background:#fff;color:var(--fg);border-radius:18px;padding:22px 24px;width:min(560px,100%);box-shadow:0 20px 60px rgba(0,0,0,.25);display:grid;gap:14px}
+.card h1{font:800 34px var(--display);margin:0;letter-spacing:-.02em}.card h2{font:800 22px var(--display);margin:0}.card p{margin:0;color:var(--muted);line-height:1.45;font-size:14px}
+label{font:600 12px var(--body);color:var(--muted);display:grid;gap:4px}
+input,select{font:500 15px var(--body);padding:9px 11px;border:1px solid var(--line);border-radius:9px;color:var(--fg);background:#fff;width:100%}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mc{border:2px solid transparent;border-radius:14px;padding:14px;color:#fff;text-align:left;cursor:pointer;display:grid;gap:3px;font-family:var(--body);min-height:96px;align-content:end;position:relative;overflow:hidden}
+.mc b{font:800 19px var(--display)}.mc small{font-size:12px;opacity:.9;line-height:1.3}.mc i{position:absolute;right:10px;top:4px;font-size:38px;font-style:normal}
+.mc[aria-pressed="true"]{border-color:#ffd23f;box-shadow:0 0 0 3px rgba(255,210,63,.3)}
+.m1{background:linear-gradient(140deg,#2a8bd6,#264a8c)}.m2{background:linear-gradient(140deg,#d2463e,#6e2140)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}.join{display:grid;grid-template-columns:1fr auto;gap:8px}
+button.b{font:600 15px var(--body);padding:11px 14px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--fg);cursor:pointer}
+button.b.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+#merr{color:#b3261e;font-size:13px;min-height:1em}
+.back{font-size:13px;color:var(--muted)}
+#rcode{font:700 40px var(--mono);letter-spacing:.15em}#rlist{margin:0;padding-left:0;list-style:none;display:grid;gap:4px;font-size:14px}
+table{border-collapse:collapse;width:100%;font-size:14px}td{padding:6px 4px;border-bottom:1px solid var(--line)}tr.me td{font-weight:700}
+</style>
+</head>
+<body>
+<div id="scr"><canvas id="cv"></canvas><div id="labels"></div>
+  <div id="hud" hidden>
+    <div class="hud" id="board"></div>
+    <div class="hud" id="status"></div>
+    <div class="hud" id="meter"><span id="stats"></span></div>
+    <div class="hud" id="keys">Setas ou WASD anda · Espaço põe bomba · C câmara · Esc pausa</div>
+    <button class="hud" id="bpause" aria-label="Pausa">❚❚</button>
+    <div id="tc"><div><span></span><button data-k="KeyW">▲</button><span></span><button data-k="KeyA">◀</button><button data-k="KeyS">▼</button><button data-k="KeyD">▶</button></div>
+      <div><span></span><span></span><button data-k="Space">💣</button></div></div>
+  </div>
+  <div id="count" hidden></div><div id="toast"></div><div id="flash"></div>
+</div>
+
+<div class="panel" id="menu">
+  <div class="card" id="m-main">
+    <div><h1>Bombas no escritório</h1><p>És uma pessoa minúscula montada numa formiga ou numa aranha, no chão do escritório. Põe bombas, rebenta as caixas, apanha os cogumelos para crescer e fica o último de pé.</p></div>
+    <label>O teu nome<input id="name" maxlength="14" autocomplete="nickname" placeholder="Jogador"></label>
+    <input type="hidden" id="smount" value="ant">
+    <div class="modes"><button type="button" class="mc m1" data-m="ant"><i>🐜</i><b>Formiga</b><small>Mais rápida a fugir das explosões</small></button>
+      <button type="button" class="mc m2" data-m="spider"><i>🕷️</i><b>Aranha</b><small>Empurra as bombas ao andar contra elas</small></button></div>
+    <div class="row"><label>Bots<select id="sbots"><option>0</option><option>1</option><option selected>3</option><option>5</option><option>7</option></select></label><p>💣 mais bombas · 🔥 explosão maior · ⚡ velocidade · 🍄 cresces e aguentas mais uma explosão</p></div>
+    <div class="btns"><button class="b pri" id="bsolo">Jogar sozinho</button><button class="b" id="bhost">Criar sala</button></div>
+    <div class="join"><input id="jcode" maxlength="4" placeholder="Código da sala" autocapitalize="characters"><button class="b" id="bjoin">Entrar</button></div>
+    <div id="merr" role="status"></div>
+    <a class="back" href="index.html">← Voltar à Regata</a>
+  </div>
+  <div class="card" id="m-room" hidden>
+    <div><p>Código da sala</p><div id="rcode"></div></div>
+    <div class="join"><input id="rlink" readonly><button class="b" id="bcopy">Copiar</button></div>
+        <ul id="rlist"></ul>
+    <div id="rhost"><p>Cada um escolhe formiga ou aranha antes de entrar. Os bots preenchem os lugares vazios.</p><br><button class="b pri" id="bstart">Começar</button></div>
+    <p id="rwait">À espera que o anfitrião comece…</p>
+    <button class="b" id="bleave">Sair da sala</button>
+  </div>
+</div>
+
+<div class="panel" id="results" hidden><div class="card"><h2 id="rtitle"></h2><table id="rtable"></table>
+  <div class="btns"><button class="b pri" id="bagain">Jogar outra vez</button><button class="b" id="bmenu">Menu</button></div><p id="rnote">O anfitrião decide quando há nova ronda.</p></div></div>
+<div class="panel" id="pause" hidden><div class="card"><h2>Pausa</h2><p id="pnote"></p><div class="btns"><button class="b pri" id="bresume">Continuar</button><button class="b" id="bquit">Sair</button></div></div></div>
+
+<script src="lib/three.min.js"></script>
+<script src="lib/post.js"></script>
+<script src="lib/peerjs.min.js"></script>
+<script src="escritorio.js?v=1"></script>
+<script src="bombas.js?v=1"></script>
+</body>
+</html>
